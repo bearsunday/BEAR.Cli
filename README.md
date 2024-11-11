@@ -139,13 +139,3 @@ Following UNIX conventions mapped to HTTP status:
 
 - Normal output goes to stdout
 - Error messages go to stderr
-
-## Requirements
-
-- PHP 8.1+
-- BEAR.Sunday 1.x
-
-## Documentation
-
-- [Manual](docs/manual.md)
-- [Contributing](docs/contributing.md)
