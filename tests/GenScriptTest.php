@@ -24,7 +24,7 @@ class GenScriptTest extends TestCase
 
         $this->assertSame('greeting', $source->name);
         $this->assertStringContainsString(
-            "new Config('app://self/fake', new \ReflectionMethod(BEAR\Cli\Fake\FakeResource::class, 'onGet')",
+            "new Config('app://self/fake', new \ReflectionMethod(\BEAR\Cli\Fake\FakeResource::class, 'onGet')",
             $source->code,
         );
         $this->assertStringContainsString(
