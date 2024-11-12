@@ -7,14 +7,17 @@ namespace BEAR\Cli;
 use BEAR\Cli\Exception\RuntimeException;
 use BEAR\Resource\JsonRenderer;
 use BEAR\Resource\ResourceInterface;
+use BEAR\Resource\ResourceObject;
 use Throwable;
 
 use function array_keys;
 use function array_shift;
+use function assert;
 use function count;
 use function explode;
 use function in_array;
 use function is_array;
+use function is_string;
 use function sprintf;
 use function str_starts_with;
 use function substr;
@@ -50,6 +53,7 @@ final class ResourceCommand
 
             // invoke resource request
             $result = $this->resource->{$this->config->method}($this->config->uri, $params);
+            assert($result instanceof ResourceObject);
 
             // set exit code based on response status code
             if ($result->code >= 400) {
@@ -66,8 +70,11 @@ final class ResourceCommand
             }
 
             if (is_array($result->body) && in_array($this->config->output, array_keys($result->body))) {
+                $outputMessage = $result->body[$this->config->output];
+                assert(is_string($outputMessage));
+
                 return new CommandResult(
-                    (string) $result->body[$this->config->output],
+                    $outputMessage,
                     0,
                 );
             }
@@ -92,11 +99,11 @@ final class ResourceCommand
     /**
      * Build resource request parameters from command line options
      *
-     * @param array<string, string> $options getoptの結果
+     * @param array<string, bool|string> $options getoptの結果
      *
      * @return array<string, mixed>
      *
-     * @psalm-pure
+     * @psalm-external-mutation-free
      */
     private function buildParams(Config $config, array $options): array
     {
@@ -120,13 +127,13 @@ final class ResourceCommand
             }
 
             // If no value is specified, the default value is used
+            /** @psalm-suppress  MixedAssignment */
             $params[$name] = $value ?? $option->defaultValue;
         }
 
         return $params;
     }
 
-    /** @psalm-pure */
     private function buildHelpMessage(Config $config): string
     {
         $help = "{$config->description}\n\n";
@@ -136,7 +143,7 @@ final class ResourceCommand
         foreach ($config->options as $option) {
             $shortOpt = $option->shortName ? ", -{$option->shortName}" : '';
             $required = $option->isRequired ? ' (required)' : '';
-            $default = $option->defaultValue !== null ? " (default: {$option->defaultValue})" : '';
+            $default = $option->defaultValue !== null && is_string($option->defaultValue) ? " (default: {$option->defaultValue})" : '';
             $help .= sprintf(
                 "  --%s%s\t%s%s%s\n",
                 $option->name,
@@ -180,8 +187,6 @@ final class ResourceCommand
      * @param array<string> $argv
      *
      * @return array<string, string|bool>
-     *
-     * @psalm-pure
      */
     private function parseArgv(array $argv): array
     {

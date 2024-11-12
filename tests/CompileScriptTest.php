@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function is_executable;
-use function sys_get_temp_dir;
 
 class CompileScriptTest extends TestCase
 {
@@ -19,7 +18,7 @@ class CompileScriptTest extends TestCase
     protected function setUp(): void
     {
         $this->compiler = new CompileScript(new GenScript());
-        $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app', sys_get_temp_dir());
+        $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
     }
 
     public function testCompile(): void

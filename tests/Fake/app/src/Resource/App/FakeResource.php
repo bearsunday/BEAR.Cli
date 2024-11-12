@@ -39,7 +39,7 @@ class FakeResource extends ResourceObject
         name: 'post-greeting',
         description: 'Post hello in multiple languages'
     )]
-    public function onPost()
+    public function onPost(): void
     {
     }
 }

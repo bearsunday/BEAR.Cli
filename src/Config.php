@@ -13,8 +13,6 @@ use function substr;
 
 /**
  * Command configuration value object
- *
- * @psalm-immutable
  */
 final readonly class Config
 {
@@ -54,7 +52,6 @@ final readonly class Config
         $this->longOptions = $this->buildLongOptions();
     }
 
-    /** @psalm-pure */
     private function getCliAttribute(ReflectionMethod $method): Cli|null
     {
         $attrs = $method->getAttributes(Cli::class);
@@ -65,11 +62,7 @@ final readonly class Config
         return $attrs[0]->newInstance();
     }
 
-    /**
-     * @return array<string, CliOption>
-     *
-     * @psalm-pure
-     */
+    /** @return array<string, CliOption> */
     private function getOptions(ReflectionMethod $method): array
     {
         $options = [];
@@ -84,7 +77,6 @@ final readonly class Config
                 name: $param->getName(),
                 shortName: $attr->shortName,
                 description: $attr->description,
-                type: $param->getType()?->getName() ?? 'string',
                 isRequired: ! $param->isOptional(),
                 defaultValue: $param->isOptional() ? $param->getDefaultValue() : null,
             );
@@ -93,7 +85,6 @@ final readonly class Config
         return $options;
     }
 
-    /** @return array<string> */
     private function buildShortOptions(): string
     {
         $shortOpts = 'hv'; // help & version

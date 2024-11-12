@@ -11,7 +11,6 @@ final class CliOption
         public readonly string $name,
         public readonly string $shortName,
         public readonly string $description,
-        public readonly string $type,
         public readonly bool $isRequired,
         public readonly mixed $defaultValue = null,
     ) {

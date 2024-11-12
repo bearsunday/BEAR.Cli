@@ -37,7 +37,6 @@ class ConfigTest extends TestCase
         $this->assertSame('name', $nameOption->name);
         $this->assertSame('n', $nameOption->shortName);
         $this->assertSame('Name to greet', $nameOption->description);
-        $this->assertSame('string', $nameOption->type);
         $this->assertTrue($nameOption->isRequired);
         $this->assertNull($nameOption->defaultValue);
 
@@ -45,7 +44,6 @@ class ConfigTest extends TestCase
         $this->assertSame('lang', $langOption->name);
         $this->assertSame('l', $langOption->shortName);
         $this->assertSame('Language (en, ja, fr, es)', $langOption->description);
-        $this->assertSame('string', $langOption->type);
         $this->assertFalse($langOption->isRequired);
         $this->assertSame('en', $langOption->defaultValue);
     }

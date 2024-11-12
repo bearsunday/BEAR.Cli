@@ -97,7 +97,7 @@ class ResourceCommandTest extends TestCase
         $this->assertSame($expectedExitCode, $result->exitCode);
     }
 
-    /** @return list<array{0:int, 1:int}> */
+    /** @return array<string, array<int>> */
     public function statusCodeProvider(): array
     {
         return [
