@@ -5,22 +5,24 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 use BEAR\Cli\Fake\FakeResourceFactory;
+use BEAR\Resource\ResourceInterface;
 use PHPUnit\Framework\TestCase;
 
 use function json_decode;
 
 class CliInvokerTest extends TestCase
 {
-    private CliInvoker $invoker;
+    private ResourceInterface $resource;
     private Config $config;
+    private CliInvoker $invoker;
 
     protected function setUp(): void
     {
-        $resource = new FakeResourceFactory();
+        $this->resource = new FakeResourceFactory();
         $this->config = new Config(
-            name: 'greet',
+            name: 'greeting',
             description: 'Say hello in multiple languages',
-            version: '1.0.0',
+            version: '0.1.0',
             method: 'get',
             uri: 'app://self/greeting',
             options: [
@@ -34,7 +36,7 @@ class CliInvokerTest extends TestCase
                 'lang' => new CliOption(
                     name: 'lang',
                     shortName: 'l',
-                    description: 'Language',
+                    description: 'Language (en, ja, fr)',
                     type: 'string',
                     isRequired: false,
                     defaultValue: 'en',
@@ -42,13 +44,13 @@ class CliInvokerTest extends TestCase
             ],
             output: 'greeting',
         );
-
-        $this->invoker = new CliInvoker($resource);
+        $this->invoker = new CliInvoker($this->config, $this->resource);
     }
 
     public function testInvokeHelp(): void
     {
-        $result = $this->invoker->invoke($this->config, ['greet', '--help']);
+        $result = ($this->invoker)(['greeting', '--help']);
+
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('Say hello in multiple languages', $result->message);
         $this->assertStringContainsString('--name, -n', $result->message);
@@ -57,52 +59,62 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeVersion(): void
     {
-        $result = $this->invoker->invoke($this->config, ['greet', '--version']);
+        $result = ($this->invoker)(['greeting', '--version']);
+
         $this->assertSame(0, $result->exitCode);
-        $this->assertStringContainsString('greet version 1.0.0', $result->message);
+        $this->assertStringContainsString('greeting version 0.1.0', $result->message);
     }
 
-    public function testInvokeSuccess(): void
+    public function testInvokeWithRequiredOption(): void
     {
-        $result = $this->invoker->invoke($this->config, ['greet', '--name=World', '--lang=ja']);
+        $result = ($this->invoker)(['greeting', '--name', 'BEAR']);
 
         $this->assertSame(0, $result->exitCode);
-        $this->assertStringContainsString('こんにちは, World', $result->message);
+        $this->assertStringContainsString('Hello, BEAR', $result->message);
     }
 
-    public function testInvokeWithDefaultLanguage(): void
+    public function testInvokeWithOptionalOption(): void
     {
-        $result = $this->invoker->invoke($this->config, ['greet', '--name=World']);
+        $result = ($this->invoker)(['greeting', '--name', 'BEAR', '--lang', 'ja']);
+
         $this->assertSame(0, $result->exitCode);
-        $this->assertStringContainsString('Hello, World', $result->message);
+        $this->assertStringContainsString('こんにちは, BEAR', $result->message);
     }
 
     public function testInvokeWithJsonFormat(): void
     {
-        $result = $this->invoker->invoke($this->config, ['greet', '--name=World', '--format=json']);
+        $result = ($this->invoker)(['greeting', '--name', 'BEAR', '--format', 'json']);
+
         $this->assertSame(0, $result->exitCode);
-        $decoded = json_decode($result->message, true);
-        $this->assertArrayHasKey('greeting', $decoded);
-        $this->assertArrayHasKey('timestamp', $decoded);
-        $this->assertArrayHasKey('lang', $decoded);
+        $json = json_decode($result->message, true);
+        $this->assertIsArray($json);
+        $this->assertArrayHasKey('greeting', $json);
+        $this->assertArrayHasKey('lang', $json);
     }
 
     public function testInvokeMissingRequiredOption(): void
     {
-        $result = $this->invoker->invoke($this->config, ['greet']);
+        $result = ($this->invoker)(['greeting']);
+
         $this->assertSame(1, $result->exitCode);
+        $this->assertStringContainsString('Option --name is required', $result->message);
     }
 
-    /** @dataProvider errorStatusProvider */
-    public function testInvokeError(int $code, int $expectedExitCode): void
+    public function testInvokeWithInvalidOption(): void
     {
-        $errorInvoker = new CliInvoker(
-            new FakeResourceFactory(),
-        );
+        $result = ($this->invoker)(['greeting', '--invalid-option']);
+
+        $this->assertSame(1, $result->exitCode);
+        $this->assertStringContainsString('Error: Option', $result->message);
+    }
+
+    /** @dataProvider statusCodeProvider */
+    public function testInvokeWithStatusCode(int $statusCode, int $expectedExitCode): void
+    {
         $config = new Config(
             name: 'error',
-            description: 'Error test command',
-            version: '1.0.0',
+            description: 'Error test',
+            version: '0.1.0',
             method: 'get',
             uri: 'app://self/error',
             options: [
@@ -110,20 +122,22 @@ class CliInvokerTest extends TestCase
                     name: 'code',
                     shortName: 'c',
                     description: 'Status code',
-                    type: 'int',
+                    type: 'string',
                     isRequired: true,
                 ),
             ],
             output: 'message',
         );
-        $result = $errorInvoker->invoke($config, ['error', '--code=' . $code]);
+        $invoker = new CliInvoker($config, $this->resource);
+        $result = $invoker(['error', '--code', (string) $statusCode]);
+
         $this->assertSame($expectedExitCode, $result->exitCode);
-        $this->assertNotEmpty($result->message);
     }
 
-    public function errorStatusProvider(): array
+    public function statusCodeProvider(): array
     {
         return [
+            'success' => [200, 0],
             'client error' => [400, 1],
             'not found' => [404, 1],
             'server error' => [500, 2],

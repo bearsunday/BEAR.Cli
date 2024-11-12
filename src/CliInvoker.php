@@ -22,32 +22,33 @@ use function substr;
 final class CliInvoker
 {
     public function __construct(
+        private readonly Config $config,
         private readonly ResourceInterface $resource,
     ) {
     }
 
-    public function invoke(Config $config, array $argv): CommandResult
+    public function __invoke(array $argv): CommandResult
     {
         try {
             if ($this->shouldShowHelp($argv)) {
                 return new CommandResult(
-                    $this->buildHelpMessage($config),
+                    $this->buildHelpMessage($this->config),
                     0,
                 );
             }
 
             if ($this->shouldShowVersion($argv)) {
                 return new CommandResult(
-                    sprintf('%s version %s', $config->name, $config->version),
+                    sprintf('%s version %s', $this->config->name, $this->config->version),
                     0,
                 );
             }
 
             $options = $this->parseArgv($argv);
-            $params = $this->buildParams($config, $options);
+            $params = $this->buildParams($this->config, $options);
 
             // invoke resource request
-            $result = $this->resource->{$config->method}($config->uri, $params);
+            $result = $this->resource->{$this->config->method}($this->config->uri, $params);
 
             // set exit code based on response status code
             if ($result->code >= 400) {
@@ -63,9 +64,9 @@ final class CliInvoker
                 return new CommandResult((string) $result);
             }
 
-            if (is_array($result->body) && in_array($config->output, array_keys($result->body))) {
+            if (is_array($result->body) && in_array($this->config->output, array_keys($result->body))) {
                 return new CommandResult(
-                    (string) $result->body[$config->output],
+                    (string) $result->body[$this->config->output],
                     0,
                 );
             }
