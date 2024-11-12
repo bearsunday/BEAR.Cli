@@ -18,8 +18,8 @@ use function substr;
  */
 final readonly class Config
 {
-    private const string REQUIRED = ':';
-    private const string OPTIONAL = '::';
+    private const REQUIRED = ':';
+    private const OPTIONAL = '::';
 
     public readonly string $name;
     public readonly string $description;
