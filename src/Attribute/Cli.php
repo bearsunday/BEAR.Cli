@@ -10,8 +10,9 @@ use Attribute;
 final class Cli
 {
     public function __construct(
+        public readonly string $name,
         public readonly string $description,
-        public readonly string $output,
+        public readonly string $output = '',
         public readonly string $version = '0.1.0',
     ) {
     }

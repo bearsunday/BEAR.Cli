@@ -11,6 +11,7 @@ use BEAR\Cli\Attribute\Option;
 class FakeErrorResource extends ResourceObject
 {
     #[Cli(
+        name: 'error',
         description: 'Resource that produces errors',
         output: 'message'
     )]

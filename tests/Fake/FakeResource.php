@@ -11,6 +11,7 @@ use BEAR\Cli\Attribute\Option;
 class FakeResource extends ResourceObject
 {
     #[Cli(
+        name: 'greeting',
         description: 'Say hello in multiple languages',
         output: 'greeting'
     )]
@@ -32,5 +33,18 @@ class FakeResource extends ResourceObject
         ];
 
         return $this;
+    }
+
+    #[Cli(
+        name: 'post-greeting',
+        description: 'Post Greeter',
+        output: 'message'
+    )]
+    public function onPost(): void
+    {
+    }
+
+    public function noCliMethod(): void
+    {
     }
 }

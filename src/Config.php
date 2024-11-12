@@ -4,30 +4,88 @@ declare(strict_types=1);
 
 namespace BEAR\Cli;
 
+use BEAR\Cli\Attribute\Cli;
+use BEAR\Cli\Attribute\Option;
+use ReflectionMethod;
+
+use function strtolower;
+use function substr;
+
 /**
  * Command configuration value object
  *
  * @psalm-immutable
  */
-final class Config
+final readonly class Config
 {
     private const string REQUIRED = ':';
     private const string OPTIONAL = '::';
+
+    public readonly string $name;
+    public readonly string $description;
+    public readonly string $version;
+    public readonly string $method;
+
+    /** @var array<string, CliOption> */
+    public readonly array $options;
+    public readonly string $output;
     public readonly string $shortOptions;
+
+    /** @var array<string> */
     public readonly array $longOptions;
 
-    /** @param array<string, CliOption> $options */
+    /** @throws Exception\LogicException */
     public function __construct(
-        public readonly string $name,
-        public readonly string $description,
-        public readonly string $version,
-        public readonly string $method,
         public readonly string $uri,
-        public readonly array $options,
-        public readonly string $output,
+        ReflectionMethod $method,
     ) {
+        $cliAttr = $this->getCliAttribute($method);
+        if (! $cliAttr) {
+            throw new Exception\LogicException('No CLI attribute found');
+        }
+
+        $this->name = $cliAttr->name;
+        $this->description = $cliAttr->description;
+        $this->version = $cliAttr->version;
+        $this->method = strtolower(substr($method->getName(), 2));
+        $this->options = $this->getOptions($method);
+        $this->output = $cliAttr->output;
         $this->shortOptions = $this->buildShortOptions();
         $this->longOptions = $this->buildLongOptions();
+    }
+
+    private function getCliAttribute(ReflectionMethod $method): Cli|null
+    {
+        $attrs = $method->getAttributes(Cli::class);
+        if (! $attrs) {
+            return null;
+        }
+
+        return $attrs[0]->newInstance();
+    }
+
+    /** @return array<string, CliOption> */
+    private function getOptions(ReflectionMethod $method): array
+    {
+        $options = [];
+        foreach ($method->getParameters() as $param) {
+            $attrs = $param->getAttributes(Option::class);
+            if (! $attrs) {
+                continue;
+            }
+
+            $attr = $attrs[0]->newInstance();
+            $options[$param->getName()] = new CliOption(
+                name: $param->getName(),
+                shortName: $attr->shortName,
+                description: $attr->description,
+                type: $param->getType()?->getName() ?? 'string',
+                isRequired: ! $param->isOptional(),
+                defaultValue: $param->isOptional() ? $param->getDefaultValue() : null,
+            );
+        }
+
+        return $options;
     }
 
     /** @return array<string> */

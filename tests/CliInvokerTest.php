@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace BEAR\Cli;
 
+use BEAR\Cli\Fake\FakeErrorResource;
+use BEAR\Cli\Fake\FakeResource;
 use BEAR\Cli\Fake\FakeResourceFactory;
 use BEAR\Resource\ResourceInterface;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 use function json_decode;
 
@@ -19,31 +22,7 @@ class CliInvokerTest extends TestCase
     protected function setUp(): void
     {
         $this->resource = new FakeResourceFactory();
-        $this->config = new Config(
-            name: 'greeting',
-            description: 'Say hello in multiple languages',
-            version: '0.1.0',
-            method: 'get',
-            uri: 'app://self/greeting',
-            options: [
-                'name' => new CliOption(
-                    name: 'name',
-                    shortName: 'n',
-                    description: 'Name to greet',
-                    type: 'string',
-                    isRequired: true,
-                ),
-                'lang' => new CliOption(
-                    name: 'lang',
-                    shortName: 'l',
-                    description: 'Language (en, ja, fr)',
-                    type: 'string',
-                    isRequired: false,
-                    defaultValue: 'en',
-                ),
-            ],
-            output: 'greeting',
-        );
+        $this->config = new Config('app://self/greeting', new ReflectionMethod(FakeResource::class, 'onGet'));
         $this->invoker = new CliInvoker($this->config, $this->resource);
     }
 
@@ -111,24 +90,8 @@ class CliInvokerTest extends TestCase
     /** @dataProvider statusCodeProvider */
     public function testInvokeWithStatusCode(int $statusCode, int $expectedExitCode): void
     {
-        $config = new Config(
-            name: 'error',
-            description: 'Error test',
-            version: '0.1.0',
-            method: 'get',
-            uri: 'app://self/error',
-            options: [
-                'code' => new CliOption(
-                    name: 'code',
-                    shortName: 'c',
-                    description: 'Status code',
-                    type: 'string',
-                    isRequired: true,
-                ),
-            ],
-            output: 'message',
-        );
-        $invoker = new CliInvoker($config, $this->resource);
+        $method = new ReflectionMethod(FakeErrorResource::class, 'onGet');
+        $invoker = new CliInvoker(new Config('app://self/error', $method), $this->resource);
         $result = $invoker(['error', '--code', (string) $statusCode]);
 
         $this->assertSame($expectedExitCode, $result->exitCode);
