@@ -27,6 +27,7 @@ final class CliInvoker
     ) {
     }
 
+    /** @param array<string> $argv */
     public function __invoke(array $argv): CommandResult
     {
         try {
@@ -150,11 +151,13 @@ final class CliInvoker
         return $help;
     }
 
+    /** @param array<string> $argv */
     private function shouldShowHelp(array $argv): bool
     {
         return in_array('--help', $argv) || in_array('-h', $argv);
     }
 
+    /** @param array<string> $argv */
     private function shouldShowVersion(array $argv): bool
     {
         return in_array('--version', $argv) || in_array('-v', $argv);
@@ -162,6 +165,10 @@ final class CliInvoker
 
     /**
      * Parse command line arguments manually
+     *
+     * @param array<string> $argv
+     *
+     * @return array<string, string|bool>
      */
     private function parseArgv(array $argv): array
     {
@@ -183,9 +190,7 @@ final class CliInvoker
                 } else {
                     $options[$parts[0]] = true;
                 }
-            }
-            // -n value format
-            elseif (str_starts_with($arg, '-')) {
+            } elseif (str_starts_with($arg, '-')) {
                 $name = substr($arg, 1);
                 if (isset($argv[$i + 1]) && ! str_starts_with($argv[$i + 1], '-')) {
                     $options[$name] = $argv[++$i];

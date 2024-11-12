@@ -51,6 +51,7 @@ class CompileScriptTest extends TestCase
         $this->assertTrue(is_executable($binFile));
     }
 
+    /** @param array<CommandSource> $sources */
     private function findSourceByName(array $sources, string $name): CommandSource|null
     {
         foreach ($sources as $source) {

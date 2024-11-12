@@ -97,6 +97,7 @@ class CliInvokerTest extends TestCase
         $this->assertSame($expectedExitCode, $result->exitCode);
     }
 
+    /** @return list<array{0:int, 1:int}> */
     public function statusCodeProvider(): array
     {
         return [
