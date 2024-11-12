@@ -30,11 +30,11 @@ use BEAR\Cli\Config;
 use BEAR\Cli\CliInvoker;
 
 $resource = Injector::getInstance('%s', 'prod-app', '%s')->getInstance(ResourceInterface::class);
-$config = new Config('%s', new \ReflectionMethod(%s::class, '%s'));
+$config = new Config('%s', new \ReflectionMethod(\%s::class, '%s'));
 $invoker = new CliInvoker($config, $resource);
 $result = $invoker($argv);
 
-echo $result->message;
+echo $result->message . PHP_EOL;
 exit($result->exitCode);
 
 EOT;
