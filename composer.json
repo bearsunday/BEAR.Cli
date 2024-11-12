@@ -1,6 +1,6 @@
 {
     "name": "bear/cli",
-    "description": "",
+    "description": "Generate CLI commands from BEAR.Sunday resource methods",
     "license": "MIT",
     "authors": [
         {
