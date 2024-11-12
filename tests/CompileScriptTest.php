@@ -31,21 +31,21 @@ class CompileScriptTest extends TestCase
         $greetingSource = $this->findSourceByName($sources, 'greeting');
         $this->assertNotNull($greetingSource);
         $this->assertStringContainsString('app://self/fake-resource', $greetingSource->code);
-        $binFile = $this->meta->appDir . '/bin/greeting';
+        $binFile = $this->meta->appDir . '/bin/cli/greeting';
         $this->assertFileExists($binFile);
         $this->assertTrue(is_executable($binFile));
 
         $postGreetingSource = $this->findSourceByName($sources, 'post-greeting');
         $this->assertNotNull($postGreetingSource);
         $this->assertStringContainsString('app://self/fake-resource', $postGreetingSource->code);
-        $binFile = $this->meta->appDir . '/bin/post-greeting';
+        $binFile = $this->meta->appDir . '/bin/cli/post-greeting';
         $this->assertFileExists($binFile);
         $this->assertTrue(is_executable($binFile));
 
         $errorSource = $this->findSourceByName($sources, 'error');
         $this->assertNotNull($errorSource);
         $this->assertStringContainsString('app://self/fake-error-resource', $errorSource->code);
-        $binFile = $this->meta->appDir . '/bin/error';
+        $binFile = $this->meta->appDir . '/bin/cli/error';
         $this->assertFileExists($binFile);
         $this->assertTrue(is_executable($binFile));
     }

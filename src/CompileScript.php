@@ -17,6 +17,8 @@ use function sprintf;
 
 final class CompileScript
 {
+    private const CLI_DIR = 'bin/cli';
+
     public function __construct(
         private readonly GenScript $genScript,
     ) {
@@ -44,27 +46,23 @@ final class CompileScript
             }
         }
 
-        return $this->dumpSources($sources, $meta->appDir . '/bin');
+        $this->dumpSources($sources, $meta->appDir . '/' . self::CLI_DIR);
+
+        return $sources;
     }
 
-    /**
-     * @param array<CommandSource> $sources
-     *
-     * @return array<CommandSource>
-     */
-    private function dumpSources(array $sources, string $binDir): array
+    /** @param array<CommandSource> $sources */
+    private function dumpSources(array $sources, string $cliDir): void
     {
-        if (! is_dir($binDir)) {
-            mkdir($binDir);
+        if (! is_dir($cliDir)) {
+            mkdir($cliDir, 0755, true);
         }
 
         foreach ($sources as $source) {
-            $file = sprintf('%s/%s', $binDir, $source->name);
+            $file = sprintf('%s/%s', $cliDir, $source->name);
             file_put_contents($file, $source->code);
             chmod($file, 0755);
         }
-
-        return $sources;
     }
 
     private function getCliAttribute(ReflectionMethod $method): Cli|null
