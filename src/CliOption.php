@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BEAR\Cli;
 
+/** @psalm-immutable */
 final class CliOption
 {
     public function __construct(

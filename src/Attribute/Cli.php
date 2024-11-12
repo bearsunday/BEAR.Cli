@@ -6,6 +6,7 @@ namespace BEAR\Cli\Attribute;
 
 use Attribute;
 
+/** @psalm-immutable */
 #[Attribute(Attribute::TARGET_METHOD)]
 final class Cli
 {

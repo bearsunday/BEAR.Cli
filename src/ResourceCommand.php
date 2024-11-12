@@ -95,6 +95,8 @@ final class ResourceCommand
      * @param array<string, string> $options getoptの結果
      *
      * @return array<string, mixed>
+     *
+     * @psalm-pure
      */
     private function buildParams(Config $config, array $options): array
     {
@@ -124,6 +126,7 @@ final class ResourceCommand
         return $params;
     }
 
+    /** @psalm-pure */
     private function buildHelpMessage(Config $config): string
     {
         $help = "{$config->description}\n\n";
@@ -151,13 +154,21 @@ final class ResourceCommand
         return $help;
     }
 
-    /** @param array<string> $argv */
+    /**
+     * @param array<string> $argv
+     *
+     * @psalm-pure
+     */
     private function shouldShowHelp(array $argv): bool
     {
         return in_array('--help', $argv) || in_array('-h', $argv);
     }
 
-    /** @param array<string> $argv */
+    /**
+     * @param array<string> $argv
+     *
+     * @psalm-pure
+     */
     private function shouldShowVersion(array $argv): bool
     {
         return in_array('--version', $argv) || in_array('-v', $argv);
@@ -169,6 +180,8 @@ final class ResourceCommand
      * @param array<string> $argv
      *
      * @return array<string, string|bool>
+     *
+     * @psalm-pure
      */
     private function parseArgv(array $argv): array
     {

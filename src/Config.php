@@ -54,6 +54,7 @@ final readonly class Config
         $this->longOptions = $this->buildLongOptions();
     }
 
+    /** @psalm-pure */
     private function getCliAttribute(ReflectionMethod $method): Cli|null
     {
         $attrs = $method->getAttributes(Cli::class);
@@ -64,7 +65,11 @@ final readonly class Config
         return $attrs[0]->newInstance();
     }
 
-    /** @return array<string, CliOption> */
+    /**
+     * @return array<string, CliOption>
+     *
+     * @psalm-pure
+     */
     private function getOptions(ReflectionMethod $method): array
     {
         $options = [];
