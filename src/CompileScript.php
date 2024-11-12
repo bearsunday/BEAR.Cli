@@ -6,7 +6,7 @@ namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
 use BEAR\Cli\Attribute\Cli;
-use Ray\Aop\ReflectionClass;
+use ReflectionClass;
 use ReflectionMethod;
 
 use function chmod;
