@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace BEAR\Cli;
 
+use InvalidArgumentException;
+
+use function strlen;
+
 /** @psalm-immutable */
 final class CliOption
 {
@@ -15,11 +19,11 @@ final class CliOption
         public readonly mixed $defaultValue = null,
     ) {
         if (strlen($shortName) !== 1) {
-            throw new \InvalidArgumentException('Short name must be a single character');
+            throw new InvalidArgumentException('Short name must be a single character');
         }
 
         if ($isRequired && $defaultValue !== null) {
-            throw new \InvalidArgumentException('Required options cannot have a default value');
+            throw new InvalidArgumentException('Required options cannot have a default value');
         }
     }
 }
