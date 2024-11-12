@@ -7,7 +7,7 @@ use BEAR\AppMeta\Meta;
 use BEAR\Cli\CompileScript;
 use BEAR\Cli\GenScript;
 
-require dirname(__DIR__, 3) . '/vendor/autoload.php';
+require dirname(__DIR__, 4) . '/vendor/autoload.php';
 
 if ($argc < 2) {
     echo 'Usage: bear-cli-gen <app-name>' . PHP_EOL;
