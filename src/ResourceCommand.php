@@ -202,19 +202,27 @@ final class ResourceCommand
                 $parts = explode('=', substr($arg, 2), 2);
                 if (isset($parts[1])) {
                     $options[$parts[0]] = $parts[1];
-                } elseif (isset($argv[$i + 1]) && ! str_starts_with($argv[$i + 1], '-')) {
+                    continue;
+                }
+
+                if (isset($argv[$i + 1]) && ! str_starts_with($argv[$i + 1], '-')) {
                     // --name value format
                     $options[$parts[0]] = $argv[++$i];
-                } else {
-                    $options[$parts[0]] = true;
+                    continue;
                 }
-            } elseif (str_starts_with($arg, '-')) {
+
+                $options[$parts[0]] = true;
+                continue;
+            }
+
+            if (str_starts_with($arg, '-')) {
                 $name = substr($arg, 1);
                 if (isset($argv[$i + 1]) && ! str_starts_with($argv[$i + 1], '-')) {
                     $options[$name] = $argv[++$i];
-                } else {
-                    $options[$name] = true;
+                    continue;
                 }
+
+                $options[$name] = true;
             }
         }
 
