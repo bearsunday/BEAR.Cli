@@ -5,4 +5,4 @@ parameters:
     - tests
     excludePaths:
         analyse:
-            - tests/Fake/FakeResourceFactory.php
+            - tests/Fake/*.php
