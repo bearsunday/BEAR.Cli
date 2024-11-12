@@ -3,9 +3,9 @@
 
 declare(strict_types=1);
 
+namespace BEAR\Cli;
+
 use BEAR\AppMeta\Meta;
-use BEAR\Cli\CompileScript;
-use BEAR\Cli\GenScript;
 
 require dirname(__DIR__, 4) . '/vendor/autoload.php';
 
@@ -17,6 +17,7 @@ if ($argc < 2) {
 
 $appName = $argv[1];
 try {
+    // Generate CLI commands
     $meta = new Meta($appName);
     $compiler = new CompileScript(new GenScript());
     $sources = $compiler->compile($meta);
@@ -25,7 +26,23 @@ try {
     foreach ($sources as $source) {
         echo sprintf('  %s', $source->name) . PHP_EOL;
     }
-    exit(0);
+
+    // Generate Homebrew formula
+    if (! is_dir($meta->appDir . '/.git')) {
+        exit(0);
+    }
+    $formula = (new GenFormula())($meta);
+
+    // Ensure directory exists
+    $formulaDir = dirname($formula['path']);
+    if (! is_dir($formulaDir)) {
+        mkdir($formulaDir, 0755, true);
+    }
+
+    // Save formula
+    file_put_contents($formula['path'], $formula['content']);
+    echo sprintf('Homebrew formula has been generated: %s', $formula['path']) . PHP_EOL;
+
 } catch (\Exception $e) {
     echo 'Error: ' . $e->getMessage() . PHP_EOL;
     exit(1);
