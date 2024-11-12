@@ -14,5 +14,12 @@ final class CliOption
         public readonly bool $isRequired,
         public readonly mixed $defaultValue = null,
     ) {
+        if (strlen($shortName) !== 1) {
+            throw new \InvalidArgumentException('Short name must be a single character');
+        }
+
+        if ($isRequired && $defaultValue !== null) {
+            throw new \InvalidArgumentException('Required options cannot have a default value');
+        }
     }
 }
