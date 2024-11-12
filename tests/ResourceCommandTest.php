@@ -13,22 +13,22 @@ use ReflectionMethod;
 
 use function json_decode;
 
-class CliInvokerTest extends TestCase
+class ResourceCommandTest extends TestCase
 {
     private ResourceInterface $resource;
     private Config $config;
-    private CliInvoker $invoker;
+    private ResourceCommand $command;
 
     protected function setUp(): void
     {
         $this->resource = new FakeResourceFactory();
         $this->config = new Config('app://self/greeting', new ReflectionMethod(FakeResource::class, 'onGet'));
-        $this->invoker = new CliInvoker($this->config, $this->resource);
+        $this->command = new ResourceCommand($this->config, $this->resource);
     }
 
     public function testInvokeHelp(): void
     {
-        $result = ($this->invoker)(['greeting', '--help']);
+        $result = ($this->command)(['greeting', '--help']);
 
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('Say hello in multiple languages', $result->message);
@@ -38,7 +38,7 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeVersion(): void
     {
-        $result = ($this->invoker)(['greeting', '--version']);
+        $result = ($this->command)(['greeting', '--version']);
 
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('greeting version 0.1.0', $result->message);
@@ -46,7 +46,7 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeWithRequiredOption(): void
     {
-        $result = ($this->invoker)(['greeting', '--name', 'BEAR']);
+        $result = ($this->command)(['greeting', '--name', 'BEAR']);
 
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('Hello, BEAR', $result->message);
@@ -54,7 +54,7 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeWithOptionalOption(): void
     {
-        $result = ($this->invoker)(['greeting', '--name', 'BEAR', '--lang', 'ja']);
+        $result = ($this->command)(['greeting', '--name', 'BEAR', '--lang', 'ja']);
 
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('こんにちは, BEAR', $result->message);
@@ -62,7 +62,7 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeWithJsonFormat(): void
     {
-        $result = ($this->invoker)(['greeting', '--name', 'BEAR', '--format', 'json']);
+        $result = ($this->command)(['greeting', '--name', 'BEAR', '--format', 'json']);
 
         $this->assertSame(0, $result->exitCode);
         $json = json_decode($result->message, true);
@@ -73,7 +73,7 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeMissingRequiredOption(): void
     {
-        $result = ($this->invoker)(['greeting']);
+        $result = ($this->command)(['greeting']);
 
         $this->assertSame(1, $result->exitCode);
         $this->assertStringContainsString('Option --name is required', $result->message);
@@ -81,7 +81,7 @@ class CliInvokerTest extends TestCase
 
     public function testInvokeWithInvalidOption(): void
     {
-        $result = ($this->invoker)(['greeting', '--invalid-option']);
+        $result = ($this->command)(['greeting', '--invalid-option']);
 
         $this->assertSame(1, $result->exitCode);
         $this->assertStringContainsString('Error: Option', $result->message);
@@ -91,8 +91,8 @@ class CliInvokerTest extends TestCase
     public function testInvokeWithStatusCode(int $statusCode, int $expectedExitCode): void
     {
         $method = new ReflectionMethod(FakeErrorResource::class, 'onGet');
-        $invoker = new CliInvoker(new Config('app://self/error', $method), $this->resource);
-        $result = $invoker(['error', '--code', (string) $statusCode]);
+        $command = new ResourceCommand(new Config('app://self/error', $method), $this->resource);
+        $result = $command(['error', '--code', (string) $statusCode]);
 
         $this->assertSame($expectedExitCode, $result->exitCode);
     }

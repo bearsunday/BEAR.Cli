@@ -27,12 +27,12 @@ use BEAR\Package\Injector;
 use BEAR\Resource\ResourceInterface;
 use %s;
 use BEAR\Cli\Config;
-use BEAR\Cli\CliInvoker;
+use BEAR\Cli\ResourceCommand;
 
 $resource = Injector::getInstance('%s', 'prod-app', '%s')->getInstance(ResourceInterface::class);
 $config = new Config('%s', new \ReflectionMethod(\%s::class, '%s'));
-$invoker = new CliInvoker($config, $resource);
-$result = $invoker($argv);
+$command = new ResourceCommand($config, $resource);
+$result = $command($argv);
 
 echo $result->message . PHP_EOL;
 exit($result->exitCode);

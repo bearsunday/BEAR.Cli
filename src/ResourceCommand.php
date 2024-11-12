@@ -19,7 +19,7 @@ use function sprintf;
 use function str_starts_with;
 use function substr;
 
-final class CliInvoker
+final class ResourceCommand
 {
     public function __construct(
         private readonly Config $config,

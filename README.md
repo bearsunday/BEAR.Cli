@@ -67,9 +67,12 @@ class Greeting extends ResourceObject
 
 Generate commands:
 ```bash
-$ vendor/bin/bear-cli generate MyVendor.MyProject
-Generated: bin/greet
-Generated: var/homebrew/greet.rb
+$ vendor/bin/bear-cli-gen MyVendor.MyProject
+CLI commands have been generated in /Users/akihito/git/MyVendor.MyProject/bin:
+  greet
+
+Homebrew fomulas have been generated in /Users/akihito/git/MyVendor.MyProject/var/homebrew:
+  greet.rb
 ```
 
 Use the command:
