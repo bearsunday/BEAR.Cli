@@ -7,14 +7,10 @@ namespace BEAR\Cli;
 use BEAR\Cli\Fake\FakeErrorResource;
 use BEAR\Cli\Fake\FakeResource;
 use BEAR\Cli\Fake\FakeResourceFactory;
-use BEAR\Resource\Request;
-use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
-use Exception;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
-use RuntimeException;
 
 use function json_decode;
 
@@ -127,7 +123,6 @@ class ResourceCommandTest extends TestCase
         $command = new ResourceCommand($this->config, $mockResource);
         $result = $command(['greeting', '--name', 'BEAR']);
 
-        // 非文字列の出力の場合、JSONにフォールバックすることを確認
         $this->assertJson($result->message);
         $decoded = json_decode($result->message, true);
         $this->assertIsArray($decoded);
@@ -136,61 +131,7 @@ class ResourceCommandTest extends TestCase
 
     public function testInvokeWithRuntimeException(): void
     {
-        $mockResource = new class implements ResourceInterface {
-            public function get(string $uri, array $query = []): never
-            {
-                throw new RuntimeException('Runtime error occurred');
-            }
-
-            public function put(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function post(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function delete(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function patch(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function head(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function options(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function uri($uri): RequestInterface // @phpstan-ignore-line
-            {
-            }
-
-            public function newInstance($uri): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function object(ResourceObject $ro): RequestInterface // @phpstan-ignore-line
-            {
-            }
-
-            public function href(string $rel, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-        };
-
+        $mockResource = new FakeStub2Resource();
         $command = new ResourceCommand($this->config, $mockResource);
         $result = $command(['greeting', '--name', 'BEAR']);
 
@@ -200,64 +141,8 @@ class ResourceCommandTest extends TestCase
 
     public function testInvokeWithGeneralException(): void
     {
-        $mockResource = new class implements ResourceInterface {
-            public function get(string $uri, array $query = []): never
-            {
-                throw new Exception('Unexpected error');
-            }
-
-            public function put(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function post(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function delete(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function patch(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function head(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function options(string $uri, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function uri($uri): RequestInterface
-            {
-                return new Request($this, '', $uri);
-            }
-
-            public function newInstance($uri): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-
-            public function object(ResourceObject $ro): RequestInterface
-            {
-                return new Request($this, '', '');
-            }
-
-            public function href(string $rel, array $query = []): ResourceObject
-            {
-                return new FakeNonStringOutputResource();
-            }
-        };
-
-        $command = new ResourceCommand($this->config, $mockResource);
+        $resource = new FakeStubResource();
+        $command = new ResourceCommand($this->config, $resource);
         $result = $command(['greeting', '--name', 'BEAR']);
 
         $this->assertSame(2, $result->exitCode);
