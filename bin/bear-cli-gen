@@ -3,9 +3,10 @@
 
 declare(strict_types=1);
 
-namespace BEAR\Cli;
-
 use BEAR\AppMeta\Meta;
+use BEAR\Cli\CompileScript;
+use BEAR\Cli\GenFormula;
+use BEAR\Cli\GenScript;
 
 require dirname(__DIR__, 4) . '/vendor/autoload.php';
 
@@ -17,32 +18,27 @@ if ($argc < 2) {
 
 $appName = $argv[1];
 try {
-    // Generate CLI commands
     $meta = new Meta($appName);
-    $compiler = new CompileScript(new GenScript());
-    $sources = $compiler->compile($meta);
+    $compiler = new CompileScript(new GenScript(), new GenFormula());
+    $result = $compiler->compile($meta);
 
+    // Display generated CLI commands
     echo sprintf('CLI commands have been generated in %s:', $meta->appDir . '/bin') . PHP_EOL;
-    foreach ($sources as $source) {
+    foreach ($result['sources'] as $source) {
         echo sprintf('  %s', $source->name) . PHP_EOL;
     }
 
-    // Generate Homebrew formula
-    if (! is_dir($meta->appDir . '/.git')) {
-        exit(0);
-    }
-    $formula = (new GenFormula())($meta);
-
-    // Ensure directory exists
-    $formulaDir = dirname($formula['path']);
-    if (! is_dir($formulaDir)) {
-        mkdir($formulaDir, 0755, true);
+    // Handle formula generation
+    if ($result['formula']) {
+        $formulaDir = dirname($result['formula']['path']);
+        if (! is_dir($formulaDir)) {
+            mkdir($formulaDir, 0755, true);
+        }
+        file_put_contents($result['formula']['path'], $result['formula']['content']);
+        echo sprintf('Homebrew formula has been generated: %s', $result['formula']['path']) . PHP_EOL;
     }
 
-    // Save formula
-    file_put_contents($formula['path'], $formula['content']);
-    echo sprintf('Homebrew formula has been generated: %s', $formula['path']) . PHP_EOL;
-
+    exit(0);
 } catch (\Exception $e) {
     echo 'Error: ' . $e->getMessage() . PHP_EOL;
     exit(1);
