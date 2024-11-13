@@ -72,7 +72,7 @@ final class GenFormulaTest extends TestCase
         $this->assertStringContainsString('desc "Test CLI command"', $content);
         $this->assertStringContainsString('homepage "https://github.com/fakevendor/fake-project"', $content);
         $this->assertStringContainsString('head "https://github.com/fakevendor/fake-project.git"', $content);
-        $this->assertStringContainsString('depends_on "php"', $content);
+        $this->assertStringContainsString('depends_on "php@', $content);
         $this->assertStringContainsString('depends_on "composer"', $content);
     }
 
