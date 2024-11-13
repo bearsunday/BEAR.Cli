@@ -7,8 +7,18 @@ namespace BEAR\Cli;
 use BEAR\AppMeta\Meta;
 use BEAR\Cli\Exception\RuntimeException;
 
+use function exec;
+use function preg_match;
+use function rtrim;
+use function sprintf;
+use function str_replace;
+use function str_starts_with;
+use function strtolower;
+use function ucfirst;
+
 final class GenFormula
 {
+    private const GITHUB_REPOSITORY_PATTERN = '#github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$#';
     private const TEMPLATE = <<<'EOT'
 # typed: false
 # frozen_string_literal: true
@@ -77,54 +87,55 @@ EOT;
 
     private function extractRepoInfo(string $url): array
     {
-        if (! preg_match('#github\.com[:/]([^/]+)/([^/\.]+)#', $url, $matches)) {
+        if (! preg_match(self::GITHUB_REPOSITORY_PATTERN, $url, $matches)) {
             throw new RuntimeException('Invalid GitHub URL format');
         }
 
         return [
             'org' => $matches[1],
-            'repo' => $matches[2]
+            'repo' => $matches[2],
         ];
     }
 
-    /**
-     * @return array{path: string, content: string}
-     */
-    public function __invoke(Meta $meta): array
+    private function generateFormulaName(string $repoName): string
+    {
+        $name = str_replace(['.', '-'], '', $repoName);
+
+        return strtolower($name);
+    }
+
+    /** @return array{path: string, content: string} */
+    public function __invoke(Meta $meta, string $description): array
     {
         $repoUrl = $this->getRepositoryUrl();
         $repoInfo = $this->extractRepoInfo($repoUrl);
         $branch = $this->detectMainBranch($repoUrl);
 
-        // Get description from composer.json
-        $composerJson = json_decode(file_get_contents($meta->appDir . '/composer.json'), true);
-        $description = $composerJson['description'] ?? "CLI commands for {$repoInfo['repo']}";
-
-        // Generate formula name
-        $formulaName = str_replace(['.', '-'], '', strtolower($repoInfo['repo']));
+        // Generate formula/tap name
+        $formulaName = $this->generateFormulaName($repoInfo['repo']);
 
         // Generate formula content
         $content = sprintf(
             self::TEMPLATE,
-            ucfirst($formulaName),
+            ucfirst($formulaName), // 先頭文字を大文字にしたクラス名
             $description,
             "https://github.com/{$repoInfo['org']}/{$repoInfo['repo']}",
             $repoUrl,
             $branch,
-            $meta->name
+            $meta->name,
         );
 
         // Define formula path
         $path = sprintf(
-            '%s/homebrew-%s/Formula/%s.rb',
-            dirname($meta->appDir),
+            '%s/var/homebrew/homebrew-%s/Formula/%s.rb',
+            $meta->appDir,
             $formulaName,
-            $formulaName
+            $formulaName,
         );
 
         return [
             'path' => $path,
-            'content' => $content
+            'content' => $content,
         ];
     }
 }
