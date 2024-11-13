@@ -75,7 +75,7 @@ final class CompileScript
     private function dumpSources(array $sources, string $binDir): void
     {
         if (! is_dir($binDir)) {
-            mkdir($binDir);
+            mkdir($binDir, 0755, true);
         }
 
         foreach ($sources as $source) {
