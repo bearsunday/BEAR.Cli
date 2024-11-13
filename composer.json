@@ -1,6 +1,6 @@
 {
-    "name": "b-e-a-r/cli",
-    "description": "",
+    "name": "bear/cli",
+    "description": "Generate CLI commands from BEAR.Sunday resource methods",
     "license": "MIT",
     "authors": [
         {
@@ -9,7 +9,10 @@
         }
     ],
     "require": {
-        "php": "^8.1"
+        "php": "^8.2",
+        "bear/resource": "^1.23",
+        "bear/package": "^1.10",
+        "bear/app-meta": "^1.8"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8",
@@ -20,12 +23,14 @@
             "BEAR\\Cli\\": "src/"
         }
     },
+    "bin": ["bin/bear-cli-gen"],
     "autoload-dev": {
         "psr-4": {
             "BEAR\\Cli\\": [
                 "tests",
                 "tests/Fake"
-            ]
+            ],
+            "FakeVendor\\FakeProject\\": "tests/Fake/app/src"
         }
     },
     "scripts": {
