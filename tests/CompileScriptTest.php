@@ -17,14 +17,14 @@ class CompileScriptTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->compiler = new CompileScript(new GenScript());
+        $this->compiler = new CompileScript(new GenScript(), new GenFormula());
         $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
     }
 
     public function testCompile(): void
     {
-        $sources = $this->compiler->compile($this->meta);
-
+        $compileResult = $this->compiler->compile($this->meta);
+        $sources = $compileResult['sources'];
         $this->assertCount(3, $sources); // onGet, onPost from FakeResource + onGet from FakeErrorResource
 
         // 各ソースの検証

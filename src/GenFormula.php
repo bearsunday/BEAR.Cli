@@ -16,6 +16,10 @@ use function str_starts_with;
 use function strtolower;
 use function ucfirst;
 
+/**
+ * @psalm-type RepoInfo = array{org: string, repo: string}
+ * @psalm-type Formula = array{path: string, content: string}
+ */
 final class GenFormula
 {
     private const GITHUB_REPOSITORY_PATTERN = '#github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$#';
@@ -57,6 +61,7 @@ class %s < Formula
   end
 end
 EOT;
+    public const HOMEBREW_FORMULA_PATH = '%s/var/homebrew/homebrew-%s/Formula/%s.rb';
 
     private function getRepositoryUrl(): string
     {
@@ -66,7 +71,7 @@ EOT;
             throw new RuntimeException('Failed to get repository URL');
         }
 
-        $url = $output[0];
+        $url = (string) $output[0];
         if (str_starts_with($url, 'git@github.com:')) {
             $url = str_replace('git@github.com:', 'https://github.com/', $url);
         }
@@ -82,9 +87,10 @@ EOT;
             throw new RuntimeException('Failed to detect main branch');
         }
 
-        return $output[0];
+        return (string) $output[0];
     }
 
+    /** @return RepoInfo */
     private function extractRepoInfo(string $url): array
     {
         if (! preg_match(self::GITHUB_REPOSITORY_PATTERN, $url, $matches)) {
@@ -104,7 +110,7 @@ EOT;
         return strtolower($name);
     }
 
-    /** @return array{path: string, content: string} */
+    /** @return Formula */
     public function __invoke(Meta $meta, string $description): array
     {
         $repoUrl = $this->getRepositoryUrl();
@@ -117,7 +123,7 @@ EOT;
         // Generate formula content
         $content = sprintf(
             self::TEMPLATE,
-            ucfirst($formulaName), // 先頭文字を大文字にしたクラス名
+            ucfirst($formulaName),
             $description,
             "https://github.com/{$repoInfo['org']}/{$repoInfo['repo']}",
             $repoUrl,
@@ -127,7 +133,7 @@ EOT;
 
         // Define formula path
         $path = sprintf(
-            '%s/var/homebrew/homebrew-%s/Formula/%s.rb',
+            self::HOMEBREW_FORMULA_PATH,
             $meta->appDir,
             $formulaName,
             $formulaName,
