@@ -88,7 +88,7 @@ final class ResourceCommand
             );
         } catch (Throwable $e) {
             return new CommandResult(
-                sprintf('Error: %s', $e->getMessage()),
+                sprintf('Error: %s(%s)', $e::class, $e->getMessage()),
                 2,
             );
         }
