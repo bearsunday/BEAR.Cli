@@ -63,7 +63,7 @@ final class CompileScript
             $formula = ($this->genFormula)($meta, $cliDesc);
         }
 
-        $this->dumpSources($sources, $meta->appDir . '/bin');
+        $this->dumpSources($sources, $meta->appDir . '/bin/cli');
 
         return [
             'sources' => $sources,
