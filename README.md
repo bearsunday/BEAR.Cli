@@ -161,7 +161,7 @@ $ cd homebrew-greet
 2. Publish the formula:
 ```bash
 # Copy the generated formula
-$ cp var/homebrew/greet.rb /path/to/homebrew-greet/Formula/
+$ cp ./var/homebrew/homebrew-greet/Fomula/greet.rb /path/to/homebrew-greet/Formula/
 $ cd /path/to/homebrew-greet
 
 # Commit and push
