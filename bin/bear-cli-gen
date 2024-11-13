@@ -7,6 +7,7 @@ use BEAR\AppMeta\Meta;
 use BEAR\Cli\CompileScript;
 use BEAR\Cli\GenFormula;
 use BEAR\Cli\GenScript;
+use BEAR\Cli\GitCommand;
 
 require dirname(__DIR__, 4) . '/vendor/autoload.php';
 
@@ -19,7 +20,7 @@ if ($argc < 2) {
 $appName = $argv[1];
 try {
     $meta = new Meta($appName);
-    $compiler = new CompileScript(new GenScript(), new GenFormula());
+    $compiler = new CompileScript(new GenScript(), new GenFormula(new GitCommand()));
     $result = $compiler->compile($meta);
 
     // Display generated CLI commands
