@@ -183,10 +183,7 @@ For private projects or monorepos, you can install directly from the local formu
 
 ```bash
 # Install from local formula
-$ brew install --formula ./var/homebrew/greet.rb
-
-# Or specify the full path
-$ brew install --formula /path/to/project/var/homebrew/greet.rb
+$ brew install --formula ./var/homebrew/hombrew-greet/Fomula/greet.rb
 ```
 
 This approach is useful for:
