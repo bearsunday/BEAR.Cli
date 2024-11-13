@@ -37,7 +37,7 @@ class %s < Formula
     libexec.install Dir["*"]
 
     cd libexec do
-      system "composer", "install", "--prefer-dist"
+       system "composer", "install", "--prefer-dist", "--no-dev", "--no-interaction" or raise "Composer install failed"
       
       # Generate CLI commands and get the generated command name
       output = Utils.safe_popen_read("#{libexec}/vendor/bear/cli/bin/bear-cli-gen", "%s")
