@@ -22,7 +22,7 @@ BEAR.Cli transforms these into native CLI commands with complete Homebrew integr
 ```bash
 # Install via Homebrew
 $ brew tap your-vendor/my-project
-$ brew install my-project
+$ brew install --HEAD my-project
 
 # Use as a native command with standard CLI features
 $ greet --help
@@ -151,19 +151,17 @@ Package your command for the public Homebrew ecosystem:
 ```bash
 # Repository name must be prefixed with 'homebrew-'
 # Example: github.com/your-vendor/homebrew-greet for 'your-vendor/greet' tap
-$ gh repo create your-vendor/homebrew-greet
+$ gh repo create your-vendor/homebrew-greet --public
 
 # Clone and setup the repository
-$ git clone git@github.com:your-vendor/homebrew-greet.git
+$ git clone https://github.com/your-vendor/homebrew-greet.git
 $ cd homebrew-greet
 ```
 
 2. Publish the formula:
 ```bash
 # Copy the generated formula
-$ cp ./var/homebrew/homebrew-greet/Fomula/greet.rb /path/to/homebrew-greet/Formula/
-$ cd /path/to/homebrew-greet
-
+$ cp -r /path/to/your-project/var/homebrew/homebrew-greet/Fomula .
 # Commit and push
 $ git add Formula/greet.rb
 $ git commit -m "Add formula for greet command"
