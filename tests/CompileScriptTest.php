@@ -17,7 +17,7 @@ class CompileScriptTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->compiler = new CompileScript(new GenScript(), new GenFormula());
+        $this->compiler = new CompileScript(new GenScript(), new GenFormula(new GitCommand()));
         $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
     }
 

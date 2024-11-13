@@ -7,12 +7,9 @@ namespace BEAR\Cli;
 use BEAR\AppMeta\Meta;
 use BEAR\Cli\Exception\RuntimeException;
 
-use function exec;
 use function preg_match;
-use function rtrim;
 use function sprintf;
 use function str_replace;
-use function str_starts_with;
 use function strtolower;
 use function ucfirst;
 
@@ -63,31 +60,9 @@ end
 EOT;
     public const HOMEBREW_FORMULA_PATH = '%s/var/homebrew/homebrew-%s/Formula/%s.rb';
 
-    private function getRepositoryUrl(): string
-    {
-        exec('git config --get remote.origin.url', $output, $resultCode);
-
-        if ($resultCode !== 0 || empty($output[0])) {
-            throw new RuntimeException('Failed to get repository URL');
-        }
-
-        $url = (string) $output[0];
-        if (str_starts_with($url, 'git@github.com:')) {
-            $url = str_replace('git@github.com:', 'https://github.com/', $url);
-        }
-
-        return rtrim($url, '/');
-    }
-
-    private function detectMainBranch(string $repoUrl): string
-    {
-        exec("git ls-remote --heads {$repoUrl} | sort | tail -n1 | awk '{print \$2}' | cut -d '/' -f 3", $output, $resultCode);
-
-        if ($resultCode !== 0 || empty($output[0])) {
-            throw new RuntimeException('Failed to detect main branch');
-        }
-
-        return (string) $output[0];
+    public function __construct(
+        private readonly GitCommandInterface $gitCommand,
+    ) {
     }
 
     /** @return RepoInfo */
@@ -113,9 +88,11 @@ EOT;
     /** @return Formula */
     public function __invoke(Meta $meta, string $description): array
     {
-        $repoUrl = $this->getRepositoryUrl();
+        $repoUrl = $this->gitCommand->getRemoteUrl();
+
         $repoInfo = $this->extractRepoInfo($repoUrl);
-        $branch = $this->detectMainBranch($repoUrl);
+        $branch = $this->gitCommand->detectMainBranch($repoUrl);
+        $repoUrl = $this->gitCommand->getRemoteUrl();
 
         // Generate formula/tap name
         $formulaName = $this->generateFormulaName($repoInfo['repo']);
