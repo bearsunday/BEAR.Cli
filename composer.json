@@ -23,6 +23,7 @@
             "BEAR\\Cli\\": "src/"
         }
     },
+    "bin": ["bin/bear-cli-gen"],
     "autoload-dev": {
         "psr-4": {
             "BEAR\\Cli\\": [
