@@ -2,37 +2,89 @@
 
 [![Continuous Integration](https://github.com/bearsunday/BEAR.Cli/workflows/Continuous%20Integration/badge.svg)](https://github.com/bearsunday/BEAR.Cli/actions)
 
-Generate CLI commands from BEAR.Sunday resource methods.
+Transform BEAR.Sunday resources into native CLI commands.
 
 ## Overview
 
-BEAR.Cli automatically creates CLI commands from your BEAR.Sunday resource methods using PHP attributes. It allows you to use the same resource as both a Web API and a CLI command.
+BEAR.Cli converts your BEAR.Sunday API endpoints into full-featured CLI commands with Homebrew integration. While BEAR.Sunday already allows command-line access to resources:
 
-In BEAR.Sunday, you can already access your resources via the page script:
 ```bash
 $ php page.php '/greeting?name=World&lang=ja'
 {
-    "greeting": "こんにちは, World",
+    "greeting": "Hello, World",
     "timestamp": 1699686400,
     "lang": "ja"
 }
 ```
 
-With BEAR.Cli, you can enhance these resources to be used as native CLI commands:
+BEAR.Cli transforms these into native CLI commands with complete Homebrew integration:
+
 ```bash
+# Install via Homebrew
+$ brew tap your-vendor/my-project
+$ brew install my-project
+
+# Use as a native command with standard CLI features
+$ greet --help
+Say hello in multiple languages
+
+Usage: greet [options]
+
+Options:
+  --name, -n     Name to greet (required)
+  --lang, -l     Language (en, ja, fr, es) (default: en)
+  --help, -h     Show this help message
+  --version, -v  Show version information
+  --format       Output format (text|json) (default: text)
+
+# Simple command invocation
 $ greet -n "World" -l ja
-こんにちは, World
+Hello, World
+
+# JSON output option
+$ greet -n "World" -l ja --format=json
+{
+    "greeting": "Hello, World",
+    "timestamp": 1699686400,
+    "lang": "ja"
+}
+
+# Version information
+$ greet --version
+greet version 0.1.0
+
+# Standard package management
+$ brew upgrade my-project    # Upgrade to the latest version
+$ brew uninstall my-project # Remove the package
 ```
+
+BEAR.Cli provides:
+- Native CLI command experience with standard features (--help, --version)
+- Full Homebrew integration for easy distribution and updates
+- No PHP or BEAR.Sunday knowledge required for end users
+- Seamless integration with the Homebrew ecosystem
+
+## Requirements
+
+### For Development
+- PHP 8.1+
+- Composer
+
+### For Homebrew Formula Generation (Optional)
+- Git repository with GitHub remote URL
+- Write permissions for formula directory
 
 ## Installation
 
-### Composer install
+Install via Composer:
 
     composer require bear/cli
 
 ## Usage
 
-Add Cli attributes to your resource:
+### 1. Add CLI Attributes to Resource
+
+Add Cli attributes to define command interface:
 
 ```php
 use BEAR\Cli\Attribute\Cli;
@@ -41,6 +93,7 @@ use BEAR\Cli\Attribute\Option;
 class Greeting extends ResourceObject
 {
     #[Cli(
+        name: 'greet',
         description: 'Say hello in multiple languages',
         output: 'greeting'
     )]
@@ -65,80 +118,119 @@ class Greeting extends ResourceObject
 }
 ```
 
-Generate commands:
+### 2. Generate Commands
+
 ```bash
 $ vendor/bin/bear-cli-gen MyVendor.MyProject
-CLI commands have been generated in /Users/akihito/git/MyVendor.MyProject/bin:
+# CLI commands generated in /path/to/project/bin:
   greet
 
-Homebrew fomulas have been generated in /Users/akihito/git/MyVendor.MyProject/var/homebrew:
+# If GitHub repository exists:
+# Homebrew formula generated in /path/to/project/var/homebrew:
   greet.rb
 ```
 
-Use the command:
+## Distribution
+
+BEAR.Cli offers two distribution methods:
+
+### 1. Direct Usage (Always Available)
+- Generated CLI commands in `bin/cli` directory
+- Run directly from project directory
+- Suitable for development and local use
+
+### 2. Homebrew Distribution
+
+BEAR.Cli generates Homebrew formulas that can be distributed in two ways:
+
+#### A. Public Distribution via Tap
+
+Package your command for the public Homebrew ecosystem:
+
+1. Create a Homebrew tap repository:
 ```bash
-# Regular use
-$ bin/greet -n "World" -l ja
-こんにちは, World
+# Repository name must be prefixed with 'homebrew-'
+# Example: github.com/your-vendor/homebrew-greet for 'your-vendor/greet' tap
+$ gh repo create your-vendor/homebrew-greet
 
-# Show help
-$ bin/greet --help
-Say hello in multiple languages
-
-Usage: greet [options]
-
-Options:
-  --name, -n     Name to greet (required)
-  --lang, -l     Language (en, ja, fr, es) (default: en)
-  --help, -h     Show this help message
-  --version, -v  Show version information
-  --format       Output format (text|json) (default: text)
-
-# JSON output
-$ bin/greet -n "World" -l ja --format=json
-{
-    "greeting": "こんにちは, World",
-    "timestamp": 1699686400,
-    "lang": "ja"
-}
+# Clone and setup the repository
+$ git clone git@github.com:your-vendor/homebrew-greet.git
+$ cd homebrew-greet
 ```
 
-### Homebrew Integration
-
-The generated homebrew formula allows easy distribution:
-
+2. Publish the formula:
 ```bash
-# First time installation
-$ brew tap your-vendor/my-project
-$ brew install my-project
+# Copy the generated formula
+$ cp var/homebrew/greet.rb /path/to/homebrew-greet/Formula/
+$ cd /path/to/homebrew-greet
 
-# Update
-$ brew upgrade my-project
+# Commit and push
+$ git add Formula/greet.rb
+$ git commit -m "Add formula for greet command"
+$ git push
 ```
 
-## Output
+3. Users can then install via Homebrew:
+```bash
+# Tap your formula repository
+$ brew tap your-vendor/greet    # Note: 'homebrew-' prefix is omitted in tap command
+$ brew install greet
+```
 
-The `output` parameter in the Cli attribute specifies which response body key should be used for CLI output:
+#### B. Private/Local Distribution
+
+For private projects or monorepos, you can install directly from the local formula file:
+
+```bash
+# Install from local formula
+$ brew install --formula ./var/homebrew/greet.rb
+
+# Or specify the full path
+$ brew install --formula /path/to/project/var/homebrew/greet.rb
+```
+
+This approach is useful for:
+- Private/internal tools
+- Monorepo projects
+- Development/testing before public release
+- Bundling tools with other project files
+
+#### Package Management Commands
+
+Regardless of installation method, users can manage the package with standard Homebrew commands:
+```bash
+# Upgrade to the latest version
+$ brew upgrade greet
+
+# Remove the package
+$ brew uninstall greet
+
+# For tap-installed packages only:
+$ brew untap your-vendor/greet
+```
+
+Note: The repository name must follow Homebrew's conventions:
+- Repository must be named `homebrew-<tap-name>`
+- Formula files should be placed in the `Formula` directory
+- Tap will be referenced as `your-vendor/tap-name` (without 'homebrew-' prefix)
+- The tap name typically matches your command name
+
+
+## Configuration
+
+### Command Output
+
+The `output` parameter in `#[Cli]` specifies the response key for CLI output:
 
 ```php
 #[Cli(
     description: 'Say hello in multiple languages',
-    output: 'greeting'  // This key will be used for CLI output
+    output: 'greeting'  # CLI will output this field's value
 )]
 ```
 
-- Web API returns full response body as JSON
-- CLI outputs only the specified key's value by default
-- Use `--format=json` for full JSON response in CLI
-
-## Exit Codes
-
-Following UNIX conventions mapped to HTTP status:
-- 0: Success (HTTP 200-399)
-- 1: Client Error (HTTP 400-499)
-- 2: Server Error (HTTP 500-599)
-
-## Output Streams
-
-- Normal output goes to stdout
+Output behavior:
+- Default: Displays only specified field's value
+- `--format=json`: Full JSON response like the API endpoint
 - Error messages go to stderr
+- HTTP status codes map to exit codes (0: success, 1: client error, 2: server error)
