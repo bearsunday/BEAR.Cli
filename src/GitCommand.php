@@ -23,6 +23,10 @@ final class GitCommand implements GitCommandInterface
 
     public function getRemoteUrl(): string
     {
+        if (! $this->exec('command -v git')) {
+            throw new RuntimeException('Git is not installed or not in PATH'); // @codeCoverageIgnore
+        }
+
         return $this->exec('git config --get remote.origin.url');
     }
 
