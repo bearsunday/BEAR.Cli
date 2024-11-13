@@ -11,23 +11,21 @@ use BEAR\Resource\ResourceObject;
 use Throwable;
 
 use function array_keys;
-use function array_shift;
 use function assert;
-use function count;
-use function explode;
 use function in_array;
 use function is_array;
 use function is_string;
 use function sprintf;
-use function str_starts_with;
-use function substr;
 
 final class ResourceCommand
 {
+    private ArgParser $argParser;
+
     public function __construct(
         private readonly Config $config,
         private readonly ResourceInterface $resource,
     ) {
+        $this->argParser = new ArgParser();
     }
 
     /** @param array<string> $argv */
@@ -48,7 +46,7 @@ final class ResourceCommand
                 );
             }
 
-            $options = $this->parseArgv($argv);
+            $options = $this->argParser->parseArgv($argv);
             $params = $this->buildParams($this->config, $options);
 
             // invoke resource request
@@ -179,53 +177,5 @@ final class ResourceCommand
     private function shouldShowVersion(array $argv): bool
     {
         return in_array('--version', $argv) || in_array('-v', $argv);
-    }
-
-    /**
-     * Parse command line arguments manually
-     *
-     * @param array<string> $argv
-     *
-     * @return array<string, string|bool>
-     */
-    private function parseArgv(array $argv): array
-    {
-        $options = [];
-        // Skip the script name
-        array_shift($argv);
-
-        for ($i = 0; $i < count($argv); $i++) {
-            $arg = $argv[$i];
-
-            // --name=value format
-            if (str_starts_with($arg, '--')) {
-                $parts = explode('=', substr($arg, 2), 2);
-                if (isset($parts[1])) {
-                    $options[$parts[0]] = $parts[1];
-                    continue;
-                }
-
-                if (isset($argv[$i + 1]) && ! str_starts_with($argv[$i + 1], '-')) {
-                    // --name value format
-                    $options[$parts[0]] = $argv[++$i];
-                    continue;
-                }
-
-                $options[$parts[0]] = true;
-                continue;
-            }
-
-            if (str_starts_with($arg, '-')) {
-                $name = substr($arg, 1);
-                if (isset($argv[$i + 1]) && ! str_starts_with($argv[$i + 1], '-')) {
-                    $options[$name] = $argv[++$i];
-                    continue;
-                }
-
-                $options[$name] = true;
-            }
-        }
-
-        return $options;
     }
 }
