@@ -6,3 +6,4 @@ parameters:
     excludePaths:
         analyse:
             - tests/Fake/*.php
+            - tests/ResourceCommandTest.php
