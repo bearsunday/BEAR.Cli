@@ -15,7 +15,7 @@ final class GitCommand implements GitCommandInterface
         exec($command, $output, $resultCode);
 
         if ($resultCode !== 0 || empty($output[0])) {
-            throw new RuntimeException('Failed to execute command: ' . $command);
+            throw new RuntimeException('Failed to execute command: ' . $command); // @codeCoverageIgnore
         }
 
         return (string) $output[0];
