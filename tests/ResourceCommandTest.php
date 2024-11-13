@@ -8,7 +8,6 @@ use BEAR\Cli\Fake\FakeErrorResource;
 use BEAR\Cli\Fake\FakeResource;
 use BEAR\Cli\Fake\FakeResourceFactory;
 use BEAR\Resource\ResourceInterface;
-use BEAR\Resource\ResourceObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 
@@ -149,8 +148,4 @@ class ResourceCommandTest extends TestCase
         $this->assertStringContainsString('Exception', $result->message);
         $this->assertStringContainsString('Unexpected error', $result->message);
     }
-}
-
-class FakeNonStringOutputResource extends ResourceObject
-{
 }
