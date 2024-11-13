@@ -62,7 +62,6 @@ final class GenFormulaTest extends TestCase
             GenFormula::HOMEBREW_FORMULA_PATH,
             $this->tmpDir,
             'fakeproject',
-            'fakeproject',
         );
         $this->assertSame($expectedPath, $result['path']);
 

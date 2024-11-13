@@ -72,7 +72,7 @@ class %s < Formula
   end
 end
 EOT;
-    public const HOMEBREW_FORMULA_PATH = '%s/var/homebrew/homebrew-%s/Formula/%s.rb';
+    public const HOMEBREW_FORMULA_PATH = '%s/var/homebrew/%s.rb';
 
     public function __construct(
         private readonly GitCommandInterface $gitCommand,
@@ -127,7 +127,6 @@ EOT;
         $path = sprintf(
             self::HOMEBREW_FORMULA_PATH,
             $meta->appDir,
-            $formulaName,
             $formulaName,
         );
 

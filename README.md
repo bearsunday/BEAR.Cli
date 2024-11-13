@@ -161,9 +161,9 @@ $ cd homebrew-greet
 2. Publish the formula:
 ```bash
 # Copy the generated formula
-$ cp -r /path/to/your-project/var/homebrew/homebrew-greet/Fomula .
+$ cp -r /path/to/your-project/var/homebrew/greet.rb .
 # Commit and push
-$ git add Formula/greet.rb
+$ git add greet.rb
 $ git commit -m "Add formula for greet command"
 $ git push
 ```
@@ -181,7 +181,7 @@ For private projects or monorepos, you can install directly from the local formu
 
 ```bash
 # Install from local formula
-$ brew install --formula ./var/homebrew/hombrew-greet/Fomula/greet.rb
+$ brew install --formula ./var/homebrew/greet.rb
 ```
 
 This approach is useful for:
