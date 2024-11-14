@@ -28,7 +28,7 @@ final class GenFormula
 # frozen_string_literal: true
 
 class %s < Formula
-  desc "%s"
+  desc "Command line interface for %s application"
   homepage "%s"
   head "%s", branch: "%s"
   license "MIT"
@@ -100,7 +100,7 @@ EOT;
     }
 
     /** @return Formula */
-    public function __invoke(Meta $meta, string $description): array
+    public function __invoke(Meta $meta): array
     {
         $repoUrl = $this->gitCommand->getRemoteUrl();
 
@@ -115,7 +115,7 @@ EOT;
         $content = sprintf(
             self::TEMPLATE,
             ucfirst($formulaName),
-            $description,
+            $meta->name,
             "https://github.com/{$repoInfo['org']}/{$repoInfo['repo']}",
             $repoUrl,
             $branch,

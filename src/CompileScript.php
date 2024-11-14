@@ -34,7 +34,6 @@ final class CompileScript
     public function compile(Meta $meta): array
     {
         $sources = [];
-        $cliDesc = '';
         $generator = $meta->getGenerator();
 
         foreach ($generator as $resource) {
@@ -45,9 +44,6 @@ final class CompileScript
                 if (! $cliAttr) {
                     continue;
                 }
-
-                // Get CLI description for formula
-                $cliDesc = $cliAttr->description;
 
                 $sources[] = ($this->genScript)(
                     uri: $resource->uriPath,
@@ -60,7 +56,7 @@ final class CompileScript
         // Generate formula if it's a git repository
         $formula = null;
         if (is_dir($meta->appDir . '/.git')) {
-            $formula = ($this->genFormula)($meta, $cliDesc);
+            $formula = ($this->genFormula)($meta);
         }
 
         $this->dumpSources($sources, $meta->appDir . '/bin/cli');
