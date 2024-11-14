@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
-use BEAR\Cli\Exception\RuntimeException;
+use BEAR\Cli\Exception\FormulaException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -90,7 +90,7 @@ final class GenFormulaTest extends TestCase
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(FormulaException::class);
         $this->expectExceptionMessage('Git remote URL is not configured');
 
         $genFormula($this->meta);
@@ -101,7 +101,7 @@ final class GenFormulaTest extends TestCase
         $gitCommand = new class implements GitCommandInterface {
             public function getRemoteUrl(): never
             {
-                throw new \RuntimeException('Command failed');
+                throw new FormulaException('Command failed');
             }
 
             public function detectMainBranch(string $repoUrl): string
@@ -111,7 +111,7 @@ final class GenFormulaTest extends TestCase
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(FormulaException::class);
         $this->expectExceptionMessage('Failed to get Git remote URL: Command failed');
 
         $genFormula($this->meta);
@@ -127,12 +127,12 @@ final class GenFormulaTest extends TestCase
 
             public function detectMainBranch(string $repoUrl): never
             {
-                throw new \RuntimeException('Branch detection failed');
+                throw new FormulaException('Branch detection failed');
             }
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(FormulaException::class);
         $this->expectExceptionMessage('Failed to detect main branch: Branch detection failed');
 
         $genFormula($this->meta);
@@ -153,7 +153,7 @@ final class GenFormulaTest extends TestCase
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(FormulaException::class);
         $this->expectExceptionMessage('Invalid GitHub URL format');
 
         $genFormula($this->meta);
