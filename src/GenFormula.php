@@ -120,7 +120,7 @@ EOT;
             $repoUrl,
             $branch,
             PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
-            $meta->name,
+            str_replace('\\', '\\\\', $meta->name),
         );
 
         // Define formula path
