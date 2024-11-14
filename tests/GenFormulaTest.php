@@ -55,7 +55,7 @@ final class GenFormulaTest extends TestCase
             }
         };
         $genFormula = new GenFormula($gitCommand);
-        $result = $genFormula($this->meta, 'Test CLI command');
+        $result = $genFormula($this->meta);
 
         // Check formula path
         $expectedPath = sprintf(
@@ -68,7 +68,7 @@ final class GenFormulaTest extends TestCase
         // Check formula content
         $content = $result['content'];
         $this->assertStringContainsString('class Fakeproject < Formula', $content);
-        $this->assertStringContainsString('desc "Test CLI command"', $content);
+        $this->assertStringContainsString('desc "Command line interface for FakeVendor\FakeProject application"', $content);
         $this->assertStringContainsString('homepage "https://github.com/fakevendor/fake-project"', $content);
         $this->assertStringContainsString('head "https://github.com/fakevendor/fake-project.git"', $content);
         $this->assertStringContainsString('depends_on "php@', $content);
@@ -95,7 +95,7 @@ final class GenFormulaTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Invalid GitHub URL format');
 
-        $genFormula($this->meta, 'Test CLI command');
+        $genFormula($this->meta);
     }
 
     /**
@@ -124,7 +124,7 @@ final class GenFormulaTest extends TestCase
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $result = $genFormula($this->meta, 'Test CLI command');
+        $result = $genFormula($this->meta);
 
         $this->assertStringContainsString(
             sprintf('class %s < Formula', ucfirst($expectedFormulaName)),
@@ -160,7 +160,7 @@ final class GenFormulaTest extends TestCase
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $result = $genFormula($this->meta, 'Test CLI command');
+        $result = $genFormula($this->meta);
 
         $this->assertStringContainsString(
             'homepage "https://github.com/fakevendor/fake-project"',
