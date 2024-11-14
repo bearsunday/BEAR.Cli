@@ -25,9 +25,17 @@ class CompileScriptTest extends TestCase
     {
         $compileResult = $this->compiler->compile($this->meta);
         $sources = $compileResult['sources'];
+        $formula = $compileResult['formula'];
+        $this->assertArrayHasKey('formula', $compileResult);
+        $this->assertNotEmpty($formula);
+        $content = $formula['content'];
+        $this->assertStringContainsString('class Bearcli < Formula', $content);
+        $this->assertStringContainsString('desc', $content);
+        $this->assertStringContainsString('homepage', $content);
+        $this->assertStringContainsString('depends_on "php@', $content);
+        $this->assertStringContainsString('depends_on "composer"', $content);
         $this->assertCount(3, $sources); // onGet, onPost from FakeResource + onGet from FakeErrorResource
 
-        // 各ソースの検証
         $greetingSource = $this->findSourceByName($sources, 'greeting');
         $this->assertNotNull($greetingSource);
         $this->assertStringContainsString('app://self/fake-resource', $greetingSource->code);
