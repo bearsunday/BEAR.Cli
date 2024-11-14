@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
-use BEAR\Cli\Exception\RuntimeException;
+use BEAR\Cli\Exception\FormulaException;
+use Throwable;
 
+use function is_dir;
 use function preg_match;
 use function sprintf;
 use function str_replace;
@@ -17,8 +19,10 @@ use const PHP_MAJOR_VERSION;
 use const PHP_MINOR_VERSION;
 
 /**
- * @psalm-type RepoInfo = array{org: string, repo: string}
- * @psalm-type Formula = array{path: string, content: string}
+ * Generate Homebrew formula for the application
+ *
+ * @psalm-type Formula=array{path: string, content: string}
+ * @psalm-type RepoInfo=array{org: string, repo: string}
  */
 final class GenFormula
 {
@@ -46,7 +50,8 @@ class %s < Formula
       # Generate CLI commands and get the generated command name
       output = Utils.safe_popen_read("#{libexec}/vendor/bear/cli/bin/bear-cli-gen", "%s")
       # Extract multiple commands from the output
-      generated_commands = output.scan(/CLI commands have been generated.*?:\n\s+(.+)$/m)[0][0].split(/\s+/)
+      generated_commands = output.scan(/CLI commands have been generated.*?:
+\s+(.+)$/m)[0][0].split(/\s+/)
       ohai "Generated commands:", generated_commands.join(", ")
 
       generated_commands.each do |command|
@@ -83,7 +88,9 @@ EOT;
     private function extractRepoInfo(string $url): array
     {
         if (! preg_match(self::GITHUB_REPOSITORY_PATTERN, $url, $matches)) {
-            throw new RuntimeException('Invalid GitHub URL format');
+            throw new FormulaException(
+                'Invalid GitHub URL format. URL must be in format: https://github.com/owner/repo or git@github.com:owner/repo',
+            );
         }
 
         return [
@@ -102,28 +109,40 @@ EOT;
     /** @return Formula */
     public function __invoke(Meta $meta): array
     {
-        $repoUrl = $this->gitCommand->getRemoteUrl();
+        if (! is_dir($meta->appDir . '/.git')) {
+            throw new FormulaException('Not a git repository. Initialize a git repository first with: git init'); // @codeCoverageIgnore
+        }
 
-        $repoInfo = $this->extractRepoInfo($repoUrl);
-        $branch = $this->gitCommand->detectMainBranch($repoUrl);
-        $repoUrl = $this->gitCommand->getRemoteUrl();
+        try {
+            $remoteUrl = $this->gitCommand->getRemoteUrl();
+            if (empty($remoteUrl)) {
+                throw new FormulaException('Git remote URL is not configured. Set a remote with: git remote add origin <url>');
+            }
+        } catch (Throwable $e) {
+            throw new FormulaException('Failed to get Git remote URL: ' . $e->getMessage());
+        }
 
-        // Generate formula/tap name
+        $repoInfo = $this->extractRepoInfo($remoteUrl);
+
+        try {
+            $branch = $this->gitCommand->detectMainBranch($remoteUrl);
+        } catch (Throwable $e) {
+            throw new FormulaException('Failed to detect main branch: ' . $e->getMessage());
+        }
+
         $formulaName = $this->generateFormulaName($repoInfo['repo']);
 
-        // Generate formula content
         $content = sprintf(
             self::TEMPLATE,
             ucfirst($formulaName),
             $meta->name,
             "https://github.com/{$repoInfo['org']}/{$repoInfo['repo']}",
-            $repoUrl,
+            $remoteUrl,
             $branch,
             PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
             str_replace('\\', '\\\\', $meta->name),
         );
 
-        // Define formula path
         $path = sprintf(
             self::HOMEBREW_FORMULA_PATH,
             $meta->appDir,

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
-use BEAR\Cli\Exception\RuntimeException;
+use BEAR\Cli\Exception\FormulaException;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -27,7 +27,6 @@ final class GenFormulaTest extends TestCase
         mkdir($this->tmpDir);
         mkdir($this->tmpDir . '/.git');
 
-        // Setup Meta
         $this->meta = new Meta('FakeVendor\FakeProject');
         $ref = new ReflectionClass($this->meta);
         $prop = $ref->getProperty('appDir');
@@ -40,8 +39,7 @@ final class GenFormulaTest extends TestCase
         rmdir($this->tmpDir);
     }
 
-    /** @test */
-    public function generatesFormulaSuccessfully(): void
+    public function testGeneratesFormulaSuccessfully(): void
     {
         $gitCommand = new class implements GitCommandInterface {
             public function getRemoteUrl(): string
@@ -54,6 +52,7 @@ final class GenFormulaTest extends TestCase
                 return 'main';
             }
         };
+
         $genFormula = new GenFormula($gitCommand);
         $result = $genFormula($this->meta);
 
@@ -68,7 +67,7 @@ final class GenFormulaTest extends TestCase
         // Check formula content
         $content = $result['content'];
         $this->assertStringContainsString('class Fakeproject < Formula', $content);
-        $this->assertStringContainsString('desc "Command line interface for FakeVendor\FakeProject application"', $content);
+        $this->assertStringContainsString('desc "Command line interface for FakeVendor\\FakeProject application"', $content);
         $this->assertStringContainsString('homepage "https://github.com/fakevendor/fake-project"', $content);
         $this->assertStringContainsString('head "https://github.com/fakevendor/fake-project.git"', $content);
         $this->assertStringContainsString('depends_on "php@', $content);
@@ -76,8 +75,70 @@ final class GenFormulaTest extends TestCase
         $this->assertStringContainsString('bear-cli-gen", "FakeVendor\\\\FakeProject', $content);
     }
 
-    /** @test */
-    public function throwsExceptionForInvalidGithubUrl(): void
+    public function testThrowsExceptionWhenRemoteUrlIsEmpty(): void
+    {
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): string
+            {
+                return '';
+            }
+
+            public function detectMainBranch(string $repoUrl): string
+            {
+                return 'main';
+            }
+        };
+        $genFormula = new GenFormula($gitCommand);
+
+        $this->expectException(FormulaException::class);
+        $this->expectExceptionMessage('Git remote URL is not configured');
+
+        $genFormula($this->meta);
+    }
+
+    public function testThrowsExceptionWhenGetRemoteUrlFails(): void
+    {
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): never
+            {
+                throw new FormulaException('Command failed');
+            }
+
+            public function detectMainBranch(string $repoUrl): string
+            {
+                return 'main';
+            }
+        };
+        $genFormula = new GenFormula($gitCommand);
+
+        $this->expectException(FormulaException::class);
+        $this->expectExceptionMessage('Failed to get Git remote URL: Command failed');
+
+        $genFormula($this->meta);
+    }
+
+    public function testThrowsExceptionWhenDetectMainBranchFails(): void
+    {
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): string
+            {
+                return 'https://github.com/fakevendor/fake-project.git';
+            }
+
+            public function detectMainBranch(string $repoUrl): never
+            {
+                throw new FormulaException('Branch detection failed');
+            }
+        };
+        $genFormula = new GenFormula($gitCommand);
+
+        $this->expectException(FormulaException::class);
+        $this->expectExceptionMessage('Failed to detect main branch: Branch detection failed');
+
+        $genFormula($this->meta);
+    }
+
+    public function testThrowsExceptionForInvalidGithubUrl(): void
     {
         $gitCommand = new class implements GitCommandInterface {
             public function getRemoteUrl(): string
@@ -92,17 +153,14 @@ final class GenFormulaTest extends TestCase
         };
         $genFormula = new GenFormula($gitCommand);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(FormulaException::class);
         $this->expectExceptionMessage('Invalid GitHub URL format');
 
         $genFormula($this->meta);
     }
 
-    /**
-     * @test
-     * @dataProvider provideRepositoryNames
-     */
-    public function generatesCorrectFormulaNameForVariousRepositories(
+    /** @dataProvider provideRepositoryNames */
+    public function testGeneratesCorrectFormulaNameForVariousRepositories(
         string $repoName,
         string $expectedFormulaName,
     ): void {
@@ -144,8 +202,7 @@ final class GenFormulaTest extends TestCase
         ];
     }
 
-    /** @test */
-    public function handlesSSHUrlConversion(): void
+    public function testHandlesSSHUrlConversion(): void
     {
         $gitCommand = new class implements GitCommandInterface {
             public function getRemoteUrl(): string
