@@ -29,7 +29,7 @@ class CompileScriptTest extends TestCase
         $sources = $compileResult['sources'];
         $formula = $compileResult['formula'];
         $this->assertArrayHasKey('formula', $compileResult);
-        $this->assertNotEmpty($formula);
+        $this->assertIsArray($formula);
         $content = $formula['content'];
         $this->assertStringContainsString('class Bearcli < Formula', $content);
         $this->assertStringContainsString('desc', $content);

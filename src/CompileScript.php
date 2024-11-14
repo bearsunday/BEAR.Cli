@@ -6,6 +6,7 @@ namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
 use BEAR\Cli\Attribute\Cli;
+use BEAR\Cli\Exception\FormulaException;
 use ReflectionClass;
 use ReflectionMethod;
 
@@ -15,6 +16,7 @@ use function is_dir;
 use function mkdir;
 use function sprintf;
 
+/** @psalm-import-type Formula from GenFormula */
 final class CompileScript
 {
     public function __construct(
@@ -28,7 +30,7 @@ final class CompileScript
      *
      * @return array{
      *   sources: array<CommandSource>,
-     *   formula: array{path: string, content: string}|null
+     *   formula: FormulaException|Formula
      * }
      */
     public function compile(Meta $meta): array
@@ -54,9 +56,10 @@ final class CompileScript
         }
 
         // Generate formula if it's a git repository
-        $formula = null;
-        if (is_dir($meta->appDir . '/.git')) {
+        try {
             $formula = ($this->genFormula)($meta);
+        } catch (FormulaException $e) {
+            $formula = $e;
         }
 
         $this->dumpSources($sources, $meta->appDir . '/bin/cli');
