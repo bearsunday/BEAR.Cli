@@ -118,7 +118,7 @@ EOT;
             if (empty($remoteUrl)) {
                 throw new FormulaException('Git remote URL is not configured. Set a remote with: git remote add origin <url>');
             }
-        } catch (Throwable $e) {
+        } catch (Exception $e) {
             throw new FormulaException('Failed to get Git remote URL: ' . $e->getMessage());
         }
 
