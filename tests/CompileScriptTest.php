@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function is_executable;
+use function mkdir;
 
 class CompileScriptTest extends TestCase
 {
@@ -19,6 +20,7 @@ class CompileScriptTest extends TestCase
     {
         $this->compiler = new CompileScript(new GenScript(), new GenFormula(new GitCommand()));
         $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
+        @mkdir(__DIR__ . '/Fake/app/.git', 0777, true);
     }
 
     public function testCompile(): void
