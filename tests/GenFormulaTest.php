@@ -73,6 +73,7 @@ final class GenFormulaTest extends TestCase
         $this->assertStringContainsString('head "https://github.com/fakevendor/fake-project.git"', $content);
         $this->assertStringContainsString('depends_on "php@', $content);
         $this->assertStringContainsString('depends_on "composer"', $content);
+        $this->assertStringContainsString('bear-cli-gen", "FakeVendor\\\\FakeProject', $content);
     }
 
     /** @test */
