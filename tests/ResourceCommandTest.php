@@ -29,7 +29,6 @@ class ResourceCommandTest extends TestCase
     public function testInvokeHelp(): void
     {
         $result = ($this->command)(['greeting', '--help']);
-
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('Say hello in multiple languages', $result->message);
         $this->assertStringContainsString('--name, -n', $result->message);
@@ -39,7 +38,6 @@ class ResourceCommandTest extends TestCase
     public function testInvokeVersion(): void
     {
         $result = ($this->command)(['greeting', '--version']);
-
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('greeting version 0.1.0', $result->message);
     }
@@ -47,7 +45,13 @@ class ResourceCommandTest extends TestCase
     public function testInvokeWithRequiredOption(): void
     {
         $result = ($this->command)(['greeting', '--name', 'BEAR']);
+        $this->assertSame(0, $result->exitCode);
+        $this->assertStringContainsString('Hello, BEAR', $result->message);
+    }
 
+    public function testInvokeWithShortOptionsAmdLongOptions(): void
+    {
+        $result = ($this->command)(['greeting', '--name', 'BEAR', '-n', 'Sunday']);
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('Hello, BEAR', $result->message);
     }
@@ -55,7 +59,6 @@ class ResourceCommandTest extends TestCase
     public function testInvokeWithOptionalOption(): void
     {
         $result = ($this->command)(['greeting', '--name', 'BEAR', '--lang', 'ja']);
-
         $this->assertSame(0, $result->exitCode);
         $this->assertStringContainsString('こんにちは, BEAR', $result->message);
     }
@@ -63,7 +66,6 @@ class ResourceCommandTest extends TestCase
     public function testInvokeWithJsonFormat(): void
     {
         $result = ($this->command)(['greeting', '--name', 'BEAR', '--format', 'json']);
-
         $this->assertSame(0, $result->exitCode);
         $json = json_decode($result->message, true);
         $this->assertIsArray($json);
@@ -71,10 +73,17 @@ class ResourceCommandTest extends TestCase
         $this->assertArrayHasKey('lang', $json);
     }
 
+    public function testInvokeDefaultJsonFormatWhenNoOutput(): void
+    {
+        $config = new Config('app://self/greeting', new ReflectionMethod(FakeResource::class, 'onPost'));
+        $command = new ResourceCommand($config, $this->resource);
+        $result = $command(['post-greeting']);
+        $this->assertJson($result->message);
+    }
+
     public function testInvokeMissingRequiredOption(): void
     {
         $result = ($this->command)(['greeting']);
-
         $this->assertSame(1, $result->exitCode);
         $this->assertStringContainsString('Option --name is required', $result->message);
     }
@@ -82,7 +91,6 @@ class ResourceCommandTest extends TestCase
     public function testInvokeWithInvalidOption(): void
     {
         $result = ($this->command)(['greeting', '--invalid-option']);
-
         $this->assertSame(1, $result->exitCode);
         $this->assertStringContainsString('Error: Option', $result->message);
     }
@@ -93,12 +101,11 @@ class ResourceCommandTest extends TestCase
         $method = new ReflectionMethod(FakeErrorResource::class, 'onGet');
         $command = new ResourceCommand(new Config('app://self/error', $method), $this->resource);
         $result = $command(['error', '--code', (string) $statusCode]);
-
         $this->assertSame($expectedExitCode, $result->exitCode);
     }
 
     /** @return array<string, array<int>> */
-    public function statusCodeProvider(): array
+    public static function statusCodeProvider(): array
     {
         return [
             'success' => [200, 0],
@@ -106,5 +113,39 @@ class ResourceCommandTest extends TestCase
             'not found' => [404, 1],
             'server error' => [500, 2],
         ];
+    }
+
+    public function testInvokeWithNonStringOutput(): void
+    {
+        $mockResource = new FakeExceptionResource();
+
+        $command = new ResourceCommand($this->config, $mockResource);
+        $result = $command(['greeting', '--name', 'BEAR']);
+
+        $this->assertJson($result->message);
+        $decoded = json_decode($result->message, true);
+        $this->assertIsArray($decoded);
+        $this->assertArrayHasKey('output', $decoded);
+    }
+
+    public function testInvokeWithRuntimeException(): void
+    {
+        $mockResource = new FakeStub2Resource();
+        $command = new ResourceCommand($this->config, $mockResource);
+        $result = $command(['greeting', '--name', 'BEAR']);
+
+        $this->assertSame(2, $result->exitCode);
+        $this->assertStringContainsString('Runtime error occurred', $result->message);
+    }
+
+    public function testInvokeWithGeneralException(): void
+    {
+        $resource = new FakeStubResource();
+        $command = new ResourceCommand($this->config, $resource);
+        $result = $command(['greeting', '--name', 'BEAR']);
+
+        $this->assertSame(2, $result->exitCode);
+        $this->assertStringContainsString('Exception', $result->message);
+        $this->assertStringContainsString('Unexpected error', $result->message);
     }
 }

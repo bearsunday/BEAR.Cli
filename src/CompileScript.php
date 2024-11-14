@@ -17,18 +17,26 @@ use function sprintf;
 
 final class CompileScript
 {
-    private const CLI_DIR = 'bin/cli';
-
     public function __construct(
         private readonly GenScript $genScript,
+        private readonly GenFormula $genFormula,
     ) {
     }
 
-    /** @return array<CommandSource> */
+    /**
+     * Compile CLI commands and generate formula
+     *
+     * @return array{
+     *   sources: array<CommandSource>,
+     *   formula: array{path: string, content: string}|null
+     * }
+     */
     public function compile(Meta $meta): array
     {
         $sources = [];
+        $cliDesc = '';
         $generator = $meta->getGenerator();
+
         foreach ($generator as $resource) {
             $class = new ReflectionClass($resource->class);
             $methods = $class->getMethods();
@@ -38,6 +46,9 @@ final class CompileScript
                     continue;
                 }
 
+                // Get CLI description for formula
+                $cliDesc = $cliAttr->description;
+
                 $sources[] = ($this->genScript)(
                     uri: $resource->uriPath,
                     appDir: $meta->appDir,
@@ -46,20 +57,29 @@ final class CompileScript
             }
         }
 
-        $this->dumpSources($sources, $meta->appDir . '/' . self::CLI_DIR);
+        // Generate formula if it's a git repository
+        $formula = null;
+        if (is_dir($meta->appDir . '/.git')) {
+            $formula = ($this->genFormula)($meta, $cliDesc);
+        }
 
-        return $sources;
+        $this->dumpSources($sources, $meta->appDir . '/bin/cli');
+
+        return [
+            'sources' => $sources,
+            'formula' => $formula,
+        ];
     }
 
     /** @param array<CommandSource> $sources */
-    private function dumpSources(array $sources, string $cliDir): void
+    private function dumpSources(array $sources, string $binDir): void
     {
-        if (! is_dir($cliDir)) {
-            mkdir($cliDir, 0755, true);
+        if (! is_dir($binDir)) {
+            mkdir($binDir, 0755, true); // @codeCoverageIgnore
         }
 
         foreach ($sources as $source) {
-            $file = sprintf('%s/%s', $cliDir, $source->name);
+            $file = sprintf('%s/%s', $binDir, $source->name);
             file_put_contents($file, $source->code);
             chmod($file, 0755);
         }

@@ -1,6 +1,6 @@
 {
     "name": "bear/cli",
-    "description": "Generate CLI commands from BEAR.Sunday resource methods",
+    "description": "Transform BEAR.Sunday resources into native CLI commands",
     "license": "MIT",
     "authors": [
         {
@@ -36,9 +36,9 @@
     "scripts": {
         "setup": "php bin/setup.php",
         "test": "./vendor/bin/phpunit",
-        "coverage": "php -dzend_extension=xdebug.so -dxdebug.mode=coverage ./vendor-bin/tools/vendor/bin/phpunit --coverage-text --coverage-html=build/coverage",
-        "phpdbg": "phpdbg -qrr ./vendor-bin/tools/vendor/bin/phpunit --coverage-text --coverage-html ./build/coverage --coverage-clover=coverage.xml",
-        "pcov": "php -dextension=pcov.so -d pcov.enabled=1 ./vendor-bin/tools/vendor/bin/phpunit --coverage-text --coverage-html=build/coverage  --coverage-clover=coverage.xml",
+        "coverage": "php -dzend_extension=xdebug.so -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage",
+        "phpdbg": "phpdbg -qrr ./vendor/bin/phpunit --coverage-text --coverage-html ./build/coverage --coverage-clover=coverage.xml",
+        "pcov": "php -dextension=pcov.so -d pcov.enabled=1 ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage  --coverage-clover=coverage.xml",
         "cs": "./vendor-bin/tools/vendor/bin/phpcs",
         "cs-fix": "./vendor-bin/tools/vendor/bin/phpcbf src tests",
         "metrics": "./vendor-bin/tools/vendor/bin/phpmetrics --report-html=build/metrics --exclude=Exception src",

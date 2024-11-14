@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function is_executable;
+use function mkdir;
 
 class CompileScriptTest extends TestCase
 {
@@ -17,17 +18,26 @@ class CompileScriptTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->compiler = new CompileScript(new GenScript());
+        $this->compiler = new CompileScript(new GenScript(), new GenFormula(new GitCommand()));
         $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
+        @mkdir(__DIR__ . '/Fake/app/.git', 0777, true);
     }
 
     public function testCompile(): void
     {
-        $sources = $this->compiler->compile($this->meta);
-
+        $compileResult = $this->compiler->compile($this->meta);
+        $sources = $compileResult['sources'];
+        $formula = $compileResult['formula'];
+        $this->assertArrayHasKey('formula', $compileResult);
+        $this->assertNotEmpty($formula);
+        $content = $formula['content'];
+        $this->assertStringContainsString('class Bearcli < Formula', $content);
+        $this->assertStringContainsString('desc', $content);
+        $this->assertStringContainsString('homepage', $content);
+        $this->assertStringContainsString('depends_on "php@', $content);
+        $this->assertStringContainsString('depends_on "composer"', $content);
         $this->assertCount(3, $sources); // onGet, onPost from FakeResource + onGet from FakeErrorResource
 
-        // 各ソースの検証
         $greetingSource = $this->findSourceByName($sources, 'greeting');
         $this->assertNotNull($greetingSource);
         $this->assertStringContainsString('app://self/fake-resource', $greetingSource->code);

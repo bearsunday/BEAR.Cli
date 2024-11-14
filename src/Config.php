@@ -69,7 +69,7 @@ final readonly class Config
         foreach ($method->getParameters() as $param) {
             $attrs = $param->getAttributes(Option::class);
             if (! $attrs) {
-                continue;
+                continue; // @codeCoverageIgnore
             }
 
             $attr = $attrs[0]->newInstance();
