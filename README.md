@@ -1,6 +1,11 @@
 # BEAR.Cli
 
-[![Continuous Integration](https://github.com/bearsunday/BEAR.Cli/workflows/Continuous%20Integration/badge.svg)](https://github.com/bearsunday/BEAR.Cli/actions)
+
+[![Type Coverage](https://shepherd.dev/github/bearsunday/BEAR.Cli/coverage.svg)](https://shepherd.dev/github/bearsunday/BEAR.Cli)
+![Continuous Integration](https://github.com/bearsunday/BEAR.Cli/workflows/Continuous%20Integration/badge.svg)
+
+
+
 
 Transform BEAR.Sunday resources into native CLI commands.
 
