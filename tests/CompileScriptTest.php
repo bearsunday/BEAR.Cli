@@ -14,19 +14,30 @@ use function mkdir;
 
 class CompileScriptTest extends TestCase
 {
-    private CompileScript $compiler;
     private Meta $meta;
 
     protected function setUp(): void
     {
-        $this->compiler = new CompileScript(new GenScript(), new GenFormula(new GitCommand()));
         $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
         @mkdir(__DIR__ . '/Fake/app/.git', 0777, true);
     }
 
     public function testCompile(): void
     {
-        $compileResult = $this->compiler->compile($this->meta);
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): string
+            {
+                return 'https://github.com/bearsunday/BEAR.Cli.git';
+            }
+
+            public function detectMainBranch(string $repoUrl): string
+            {
+                return 'main';
+            }
+        };
+
+        $compiler = new CompileScript(new GenScript(), new GenFormula($gitCommand));
+        $compileResult = $compiler->compile($this->meta);
         $sources = $compileResult['sources'];
         $formula = $compileResult['formula'];
         $this->assertArrayHasKey('formula', $compileResult);
