@@ -6,6 +6,7 @@ namespace BEAR\Cli;
 
 use BEAR\Cli\Exception\RuntimeException;
 
+use function escapeshellarg;
 use function exec;
 
 final class GitCommand implements GitCommandInterface
@@ -32,8 +33,10 @@ final class GitCommand implements GitCommandInterface
 
     public function detectMainBranch(string $repoUrl): string
     {
+        $escapedRepoUrl = escapeshellarg($repoUrl);
+
         return $this->exec(
-            "git ls-remote --heads {$repoUrl} | sort | tail -n1 | awk '{print \$2}' | cut -d '/' -f 3",
+            "git ls-remote --heads {$escapedRepoUrl} | sort | tail -n1 | awk '{print \$2}' | cut -d '/' -f 3",
         );
     }
 }
