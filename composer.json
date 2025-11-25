@@ -41,7 +41,6 @@
         "pcov": "php -dextension=pcov.so -d pcov.enabled=1 ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage  --coverage-clover=coverage.xml",
         "cs": "./vendor/bin/phpcs",
         "cs-fix": "./vendor/bin/phpcbf src tests",
-        "metrics": "./vendor/bin/phpmetrics --report-html=build/metrics --exclude=Exception src",
         "clean": [
             "./vendor/bin/phpstan clear-result-cache",
             "./vendor/bin/psalm --clear-cache"
@@ -59,8 +58,7 @@
             "@clean",
             "@cs",
             "@sa",
-            "@pcov",
-            "@metrics"
+            "@pcov"
         ],
         "post-install-cmd": "@composer bin all install --ansi",
         "post-update-cmd": "@composer bin all update --ansi"
@@ -74,7 +72,6 @@
         "cs-fix": "Fix the coding style",
         "clean": "Delete tmp files",
         "sa": "Run static analysis",
-        "metrics": "Build metrics report",
         "tests": "Run tests and quality checks",
         "build": "Build project"
     },
