@@ -73,8 +73,6 @@ final class ArgParser
 
     /**
      * Parse long format options (e.g. --name=value or --name value)
-     *
-     * @psalm-pure
      */
     private function parseLongFormat(string $arg, string|null $nextArg): ParseResult
     {
@@ -96,8 +94,6 @@ final class ArgParser
 
     /**
      * Parse short format options (e.g. -n value)
-     *
-     * @psalm-pure
      */
     private function parseShortFormat(string $arg, string|null $nextArg): ParseResult
     {

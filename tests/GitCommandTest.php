@@ -42,7 +42,6 @@ final class GitCommandTest extends TestCase
         try {
             $url = $this->gitCommand->getRemoteUrl();
 
-            $this->assertIsString($url);
             $this->assertNotEmpty($url);
             // Should contain github.com since this is a GitHub repository
             $this->assertStringContainsString('github.com', $url);
@@ -57,7 +56,6 @@ final class GitCommandTest extends TestCase
         $repoUrl = 'https://github.com/bearsunday/BEAR.Cli.git';
         $branch = $this->gitCommand->detectMainBranch($repoUrl);
 
-        $this->assertIsString($branch);
         $this->assertNotEmpty($branch);
         // The branch name should not be empty
         $this->assertGreaterThan(0, strlen($branch));
