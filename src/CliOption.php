@@ -10,14 +10,14 @@ use BEAR\Cli\Exception\ShortNameNotSingleCharacterException;
 use function strlen;
 
 /** @psalm-immutable */
-final class CliOption
+final readonly class CliOption
 {
     public function __construct(
-        public readonly string $name,
-        public readonly string $shortName,
-        public readonly string $description,
-        public readonly bool $isRequired,
-        public readonly mixed $defaultValue = null,
+        public string $name,
+        public string $shortName,
+        public string $description,
+        public bool $isRequired,
+        public mixed $defaultValue = null,
     ) {
         if (strlen($shortName) !== 1) {
             throw new ShortNameNotSingleCharacterException($shortName); // @codeCoverageIgnore

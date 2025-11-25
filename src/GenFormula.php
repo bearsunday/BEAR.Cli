@@ -24,7 +24,7 @@ use const PHP_MINOR_VERSION;
  * @psalm-type Formula=array{path: string, content: string}
  * @psalm-type RepoInfo=array{org: string, repo: string}
  */
-final class GenFormula
+final readonly class GenFormula
 {
     private const GITHUB_REPOSITORY_PATTERN = '#github\.com[:/]([^/]+)/([^/]+?)(?:\.git)?$#';
     private const TEMPLATE = <<<'EOT'
@@ -80,7 +80,7 @@ EOT;
     public const HOMEBREW_FORMULA_PATH = '%s/var/homebrew/%s.rb';
 
     public function __construct(
-        private readonly GitCommandInterface $gitCommand,
+        private GitCommandInterface $gitCommand,
     ) {
     }
 

@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 /** @psalm-immutable */
-final class CommandResult
+final readonly class CommandResult
 {
     public function __construct(
-        public readonly string $message,
-        public readonly int $exitCode = 0,
+        public string $message,
+        public int $exitCode = 0,
     ) {
     }
 }

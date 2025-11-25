@@ -8,11 +8,11 @@ use Attribute;
 
 /** @psalm-immutable */
 #[Attribute(Attribute::TARGET_PARAMETER)]
-final class Option
+final readonly class Option
 {
     public function __construct(
-        public readonly string $shortName,
-        public readonly string $description,
+        public string $shortName,
+        public string $description,
     ) {
     }
 }
