@@ -6,6 +6,6 @@ namespace BEAR\Cli\Exception;
 
 use InvalidArgumentException;
 
-class RequiredCharacterDefaultValue extends InvalidArgumentException
+final class RequiredCharacterDefaultValue extends InvalidArgumentException
 {
 }
