@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace BEAR\Cli;
 
-use BEAR\Cli\Exception\RequiredCharacterDefaultValue;
+use BEAR\Cli\Exception\RequiredOptionWithDefaultValueException;
 use BEAR\Cli\Exception\ShortNameNotSingleCharacterException;
 
+use function sprintf;
 use function strlen;
 
 /** @psalm-immutable */
@@ -20,11 +21,11 @@ final readonly class CliOption
         public mixed $defaultValue = null,
     ) {
         if (strlen($shortName) !== 1) {
-            throw new ShortNameNotSingleCharacterException($shortName); // @codeCoverageIgnore
+            throw new ShortNameNotSingleCharacterException(sprintf('Short name must be a single character, got: %s', $shortName)); // @codeCoverageIgnore
         }
 
         if ($isRequired && $defaultValue !== null) {
-            throw new RequiredCharacterDefaultValue(); // @codeCoverageIgnore
+            throw new RequiredOptionWithDefaultValueException('Required options cannot have a default value'); // @codeCoverageIgnore
         }
     }
 }

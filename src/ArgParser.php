@@ -20,7 +20,6 @@ use function substr;
  *   - Long: --name value or --name=value
  *
  * @see https://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html
- * @psalm-immutable
  */
 final class ArgParser
 {
@@ -30,6 +29,8 @@ final class ArgParser
      * @param array<string> $argv Command line arguments
      *
      * @return array<string, string|bool> Parsed options
+     *
+     * @psalm-external-mutation-free
      */
     public function parseArgv(array $argv): array
     {
@@ -72,6 +73,8 @@ final class ArgParser
 
     /**
      * Parse long format options (e.g. --name=value or --name value)
+     *
+     * @psalm-pure
      */
     private function parseLongFormat(string $arg, string|null $nextArg): ParseResult
     {
@@ -93,6 +96,8 @@ final class ArgParser
 
     /**
      * Parse short format options (e.g. -n value)
+     *
+     * @psalm-pure
      */
     private function parseShortFormat(string $arg, string|null $nextArg): ParseResult
     {

@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use function chdir;
 use function file_exists;
 use function getcwd;
+use function strlen;
 
 final class GitCommandTest extends TestCase
 {

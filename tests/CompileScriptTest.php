@@ -12,6 +12,8 @@ use function dirname;
 use function is_executable;
 use function mkdir;
 
+use const PHP_OS_FAMILY;
+
 class CompileScriptTest extends TestCase
 {
     private Meta $meta;
