@@ -55,21 +55,27 @@ class CompileScriptTest extends TestCase
         $this->assertStringContainsString('app://self/fake-resource', $greetingSource->code);
         $binFile = $this->meta->appDir . '/bin/cli/greeting';
         $this->assertFileExists($binFile);
-        $this->assertTrue(is_executable($binFile));
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertTrue(is_executable($binFile));
+        }
 
         $postGreetingSource = $this->findSourceByName($sources, 'post-greeting');
         $this->assertNotNull($postGreetingSource);
         $this->assertStringContainsString('app://self/fake-resource', $postGreetingSource->code);
         $binFile = $this->meta->appDir . '/bin/cli/post-greeting';
         $this->assertFileExists($binFile);
-        $this->assertTrue(is_executable($binFile));
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertTrue(is_executable($binFile));
+        }
 
         $errorSource = $this->findSourceByName($sources, 'error');
         $this->assertNotNull($errorSource);
         $this->assertStringContainsString('app://self/fake-error-resource', $errorSource->code);
         $binFile = $this->meta->appDir . '/bin/cli/error';
         $this->assertFileExists($binFile);
-        $this->assertTrue(is_executable($binFile));
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertTrue(is_executable($binFile));
+        }
     }
 
     public function testCompileHandlesFormulaException(): void
