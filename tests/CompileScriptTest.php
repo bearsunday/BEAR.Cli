@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
+use BEAR\Cli\Exception\FormulaException;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;
@@ -58,6 +59,32 @@ class CompileScriptTest extends TestCase
         $binFile = $this->meta->appDir . '/bin/cli/error';
         $this->assertFileExists($binFile);
         $this->assertTrue(is_executable($binFile));
+    }
+
+    public function testCompileHandlesFormulaException(): void
+    {
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): string
+            {
+                return ''; // Empty URL triggers FormulaException
+            }
+
+            public function detectMainBranch(string $repoUrl): string
+            {
+                return 'main';
+            }
+        };
+
+        $compiler = new CompileScript(new GenScript(), new GenFormula($gitCommand));
+        $result = $compiler->compile($this->meta);
+
+        $this->assertArrayHasKey('formula', $result);
+        $this->assertInstanceOf(FormulaException::class, $result['formula']);
+        $this->assertStringContainsString('Git remote URL is not configured', $result['formula']->getMessage());
+
+        // Verify that sources are still generated despite formula exception
+        $this->assertArrayHasKey('sources', $result);
+        $this->assertCount(3, $result['sources']);
     }
 
     /** @param array<CommandSource> $sources */
