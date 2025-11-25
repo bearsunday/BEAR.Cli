@@ -11,6 +11,7 @@ use function chdir;
 use function file_exists;
 use function getcwd;
 use function strlen;
+use function sys_get_temp_dir;
 
 final class GitCommandTest extends TestCase
 {
@@ -63,8 +64,8 @@ final class GitCommandTest extends TestCase
 
     public function testGetRemoteUrlThrowsExceptionWhenNotInGitRepository(): void
     {
-        // Change to a directory without .git
-        chdir('/tmp');
+        // Change to a directory without .git (cross-platform temp directory)
+        chdir(sys_get_temp_dir());
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to execute command');
