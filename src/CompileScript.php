@@ -17,11 +17,11 @@ use function mkdir;
 use function sprintf;
 
 /** @psalm-import-type Formula from GenFormula */
-final class CompileScript
+final readonly class CompileScript
 {
     public function __construct(
-        private readonly GenScript $genScript,
-        private readonly GenFormula $genFormula,
+        private GenScript $genScript,
+        private GenFormula $genFormula,
     ) {
     }
 

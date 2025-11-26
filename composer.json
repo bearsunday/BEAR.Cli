@@ -39,16 +39,15 @@
         "coverage": "php -dzend_extension=xdebug.so -dxdebug.mode=coverage ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage",
         "phpdbg": "phpdbg -qrr ./vendor/bin/phpunit --coverage-text --coverage-html ./build/coverage --coverage-clover=coverage.xml",
         "pcov": "php -dextension=pcov.so -d pcov.enabled=1 ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage  --coverage-clover=coverage.xml",
-        "cs": "./vendor-bin/tools/vendor/bin/phpcs",
-        "cs-fix": "./vendor-bin/tools/vendor/bin/phpcbf src tests",
-        "metrics": "./vendor-bin/tools/vendor/bin/phpmetrics --report-html=build/metrics --exclude=Exception src",
+        "cs": "./vendor/bin/phpcs",
+        "cs-fix": "./vendor/bin/phpcbf src tests",
         "clean": [
-            "./vendor-bin/tools/vendor/bin/phpstan clear-result-cache",
-            "./vendor-bin/tools/vendor/bin/psalm --clear-cache"
+            "./vendor/bin/phpstan clear-result-cache",
+            "./vendor/bin/psalm --clear-cache"
         ],
         "sa": [
-            "./vendor-bin/tools/vendor/bin/psalm --show-info=true",
-            "./vendor-bin/tools/vendor/bin/phpstan analyse -c phpstan.neon"
+            "./vendor/bin/psalm --show-info=true",
+            "./vendor/bin/phpstan analyse -c phpstan.neon"
         ],
         "tests": [
             "@cs",
@@ -59,8 +58,7 @@
             "@clean",
             "@cs",
             "@sa",
-            "@pcov",
-            "@metrics"
+            "@pcov"
         ],
         "post-install-cmd": "@composer bin all install --ansi",
         "post-update-cmd": "@composer bin all update --ansi"
@@ -74,7 +72,6 @@
         "cs-fix": "Fix the coding style",
         "clean": "Delete tmp files",
         "sa": "Run static analysis",
-        "metrics": "Build metrics report",
         "tests": "Run tests and quality checks",
         "build": "Build project"
     },

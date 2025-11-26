@@ -8,13 +8,13 @@ use Attribute;
 
 /** @psalm-immutable */
 #[Attribute(Attribute::TARGET_METHOD)]
-final class Cli
+final readonly class Cli
 {
     public function __construct(
-        public readonly string $name,
-        public readonly string $description,
-        public readonly string $output = '',
-        public readonly string $version = '0.1.0',
+        public string $name,
+        public string $description,
+        public string $output = '',
+        public string $version = '0.1.0',
     ) {
     }
 }

@@ -5,27 +5,41 @@ declare(strict_types=1);
 namespace BEAR\Cli;
 
 use BEAR\AppMeta\Meta;
+use BEAR\Cli\Exception\FormulaException;
 use PHPUnit\Framework\TestCase;
 
 use function dirname;
 use function is_executable;
 use function mkdir;
 
+use const PHP_OS_FAMILY;
+
 class CompileScriptTest extends TestCase
 {
-    private CompileScript $compiler;
     private Meta $meta;
 
     protected function setUp(): void
     {
-        $this->compiler = new CompileScript(new GenScript(), new GenFormula(new GitCommand()));
         $this->meta = new Meta('FakeVendor\FakeProject', 'app', dirname(__DIR__) . '/tests/Fake/app');
         @mkdir(__DIR__ . '/Fake/app/.git', 0777, true);
     }
 
     public function testCompile(): void
     {
-        $compileResult = $this->compiler->compile($this->meta);
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): string
+            {
+                return 'https://github.com/bearsunday/BEAR.Cli.git';
+            }
+
+            public function detectMainBranch(string $repoUrl): string
+            {
+                return 'main';
+            }
+        };
+
+        $compiler = new CompileScript(new GenScript(), new GenFormula($gitCommand));
+        $compileResult = $compiler->compile($this->meta);
         $sources = $compileResult['sources'];
         $formula = $compileResult['formula'];
         $this->assertArrayHasKey('formula', $compileResult);
@@ -43,21 +57,53 @@ class CompileScriptTest extends TestCase
         $this->assertStringContainsString('app://self/fake-resource', $greetingSource->code);
         $binFile = $this->meta->appDir . '/bin/cli/greeting';
         $this->assertFileExists($binFile);
-        $this->assertTrue(is_executable($binFile));
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertTrue(is_executable($binFile));
+        }
 
         $postGreetingSource = $this->findSourceByName($sources, 'post-greeting');
         $this->assertNotNull($postGreetingSource);
         $this->assertStringContainsString('app://self/fake-resource', $postGreetingSource->code);
         $binFile = $this->meta->appDir . '/bin/cli/post-greeting';
         $this->assertFileExists($binFile);
-        $this->assertTrue(is_executable($binFile));
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertTrue(is_executable($binFile));
+        }
 
         $errorSource = $this->findSourceByName($sources, 'error');
         $this->assertNotNull($errorSource);
         $this->assertStringContainsString('app://self/fake-error-resource', $errorSource->code);
         $binFile = $this->meta->appDir . '/bin/cli/error';
         $this->assertFileExists($binFile);
-        $this->assertTrue(is_executable($binFile));
+        if (PHP_OS_FAMILY !== 'Windows') {
+            $this->assertTrue(is_executable($binFile));
+        }
+    }
+
+    public function testCompileHandlesFormulaException(): void
+    {
+        $gitCommand = new class implements GitCommandInterface {
+            public function getRemoteUrl(): string
+            {
+                return ''; // Empty URL triggers FormulaException
+            }
+
+            public function detectMainBranch(string $repoUrl): string
+            {
+                return 'main';
+            }
+        };
+
+        $compiler = new CompileScript(new GenScript(), new GenFormula($gitCommand));
+        $result = $compiler->compile($this->meta);
+
+        $this->assertArrayHasKey('formula', $result);
+        $this->assertInstanceOf(FormulaException::class, $result['formula']);
+        $this->assertStringContainsString('Git remote URL is not configured', $result['formula']->getMessage());
+
+        // Verify that sources are still generated despite formula exception
+        $this->assertArrayHasKey('sources', $result);
+        $this->assertCount(3, $result['sources']);
     }
 
     /** @param array<CommandSource> $sources */

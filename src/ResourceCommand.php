@@ -17,13 +17,13 @@ use function is_array;
 use function is_string;
 use function sprintf;
 
-final class ResourceCommand
+final readonly class ResourceCommand
 {
     private ArgParser $argParser;
 
     public function __construct(
-        private readonly Config $config,
-        private readonly ResourceInterface $resource,
+        private Config $config,
+        private ResourceInterface $resource,
     ) {
         $this->argParser = new ArgParser();
     }

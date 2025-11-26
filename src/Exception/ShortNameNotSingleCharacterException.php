@@ -6,6 +6,6 @@ namespace BEAR\Cli\Exception;
 
 use InvalidArgumentException;
 
-class ShortNameNotSingleCharacterException extends InvalidArgumentException
+final class ShortNameNotSingleCharacterException extends InvalidArgumentException
 {
 }
