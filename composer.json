@@ -59,9 +59,7 @@
             "@cs",
             "@sa",
             "@pcov"
-        ],
-        "post-install-cmd": "@composer bin all install --ansi",
-        "post-update-cmd": "@composer bin all update --ansi"
+        ]
     },
     "scripts-descriptions": {
         "test": "Run unit tests",
@@ -83,7 +81,7 @@
     "extra": {
         "bamarni-bin": {
             "bin-links": true,
-            "forward-command": false
+            "forward-command": true
         }
     }
 }
