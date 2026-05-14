@@ -8,6 +8,7 @@ use BEAR\Cli\Attribute\Cli;
 use BEAR\Cli\Attribute\Option;
 use ReflectionMethod;
 
+use function sprintf;
 use function strtolower;
 use function substr;
 
@@ -32,7 +33,10 @@ final readonly class Config
     /** @var array<string> */
     public readonly array $longOptions;
 
-    /** @throws Exception\LogicException */
+    /**
+     * @throws Exception\LogicException When the method is not annotated with #[Cli].
+     * @throws Exception\MissingOptionAttributeException When a parameter is missing #[Option].
+     */
     public function __construct(
         public readonly string $uri,
         ReflectionMethod $method,
@@ -62,14 +66,28 @@ final readonly class Config
         return $attrs[0]->newInstance();
     }
 
-    /** @return array<string, CliOption> */
+    /**
+     * @return array<string, CliOption>
+     *
+     * @throws Exception\MissingOptionAttributeException When a parameter on a #[Cli]
+     *     method lacks the #[Option] attribute. Every parameter on a CLI-bound method
+     *     must declare #[Option] so the generator can map it to a long/short flag;
+     *     silently skipping would produce a command that can never receive the value.
+     */
     private function getOptions(ReflectionMethod $method): array
     {
         $options = [];
         foreach ($method->getParameters() as $param) {
             $attrs = $param->getAttributes(Option::class);
             if (! $attrs) {
-                continue; // @codeCoverageIgnore
+                throw new Exception\MissingOptionAttributeException(sprintf(
+                    'Parameter $%s of %s::%s() has no #[Option] attribute. ' .
+                    'When a method is annotated with #[Cli], every parameter must be ' .
+                    'annotated with #[Option(shortName: ..., description: ...)].',
+                    $param->getName(),
+                    $method->getDeclaringClass()->getName(),
+                    $method->getName(),
+                ));
             }
 
             $attr = $attrs[0]->newInstance();
