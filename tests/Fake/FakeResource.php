@@ -47,4 +47,16 @@ class FakeResource extends ResourceObject
     public function noCliMethod(): void
     {
     }
+
+    /**
+     * Simulates an authoring mistake: a #[Cli] method whose parameter is missing #[Option].
+     * Used by ConfigTest::testMissingOptionAttribute to verify fail-fast behaviour.
+     */
+    #[Cli(
+        name: 'missing-option',
+        description: 'Resource with a parameter that has no #[Option] attribute',
+    )]
+    public function onPut(string $name): void
+    {
+    }
 }

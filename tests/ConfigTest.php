@@ -81,4 +81,13 @@ class ConfigTest extends TestCase
         $config = new Config('app://self/greeting', $method);
         $this->assertSame('post', $config->method);
     }
+
+    public function testMissingOptionAttribute(): void
+    {
+        $this->expectException(Exception\MissingOptionAttributeException::class);
+        $this->expectExceptionMessage('Parameter $name of BEAR\Cli\Fake\FakeResource::onPut() has no #[Option] attribute.');
+
+        $method = new ReflectionMethod(FakeResource::class, 'onPut');
+        new Config('app://self/greeting', $method);
+    }
 }

@@ -4,6 +4,7 @@
 
 namespace BEAR\Cli\Fake;
 
+use BEAR\Resource\Method;
 use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
@@ -72,7 +73,15 @@ class FakeResourceFactory implements ResourceInterface
     {
     }
 
-    public function href(string $rel, array $query = []): ResourceObject
+    public function href(string $rel, array $query = [], ResourceObject|null $ro = null): ResourceObject
+    {
+    }
+
+    public function newRequest(Method $method, string $uri, array $query = []): RequestInterface
+    {
+    }
+
+    public function crawl(string $uri, string $linkKey, array $query = []): ResourceObject
     {
     }
 }
