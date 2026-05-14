@@ -6,6 +6,7 @@ namespace BEAR\Cli;
 
 use BEAR\Cli\Fake\FakeErrorResource;
 use BEAR\Cli\Fake\FakeResource;
+use BEAR\Resource\Method;
 use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
@@ -63,8 +64,16 @@ class FakeExceptionResource implements ResourceInterface
     {
     }
 
-    public function href(string $rel, array $query = []): ResourceObject
+    public function href(string $rel, array $query = [], ResourceObject|null $ro = null): ResourceObject
     {
         return new FakeNonStringOutputResource();
+    }
+
+    public function newRequest(Method $method, string $uri, array $query = []): RequestInterface // @phpstan-ignore-line
+    {
+    }
+
+    public function crawl(string $uri, string $linkKey, array $query = []): ResourceObject // @phpstan-ignore-line
+    {
     }
 }
