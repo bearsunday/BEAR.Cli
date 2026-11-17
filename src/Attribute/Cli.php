@@ -15,7 +15,10 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD)]
 final readonly class Cli
 {
-    /** @param string $output Body key printed by default; without it in the body, the whole body is printed as JSON */
+    /**
+     * @param string $output Body key printed by default; its value must be a string, otherwise the command
+     *                       fails with exit code 2. Without the key in the body, the whole body is printed as JSON
+     */
     public function __construct(
         public string $name,
         public string $description,
