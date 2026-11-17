@@ -17,7 +17,8 @@ final readonly class Cli
 {
     /**
      * @param string $output Body key printed by default; its value must be a string, otherwise the command
-     *                       fails with exit code 2. Without the key in the body, the whole body is printed as JSON
+     *                       fails with exit code 2. Without the key in the body, the whole body is printed as JSON,
+     *                       unless the resource has already set a string view, which is printed instead
      */
     public function __construct(
         public string $name,
