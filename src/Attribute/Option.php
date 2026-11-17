@@ -15,7 +15,10 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 final readonly class Option
 {
-    /** @param string $shortName Letter of the short option `-<letter>`; empty for none */
+    /**
+     * @param string $shortName Single letter of the short option `-<letter>`;
+     *                          any other length throws ShortNameNotSingleCharacterException
+     */
     public function __construct(
         public string $shortName,
         public string $description,
